@@ -1,96 +1,520 @@
-:root{--bg:#0e0e10;--sur:#18181c;--bor:#2a2a30;--tx:#e8e6e0;--mu:#7a7870;--FP:#E8650A;--JP:#4CAF50;--RLA:#29B6F6;--BG:#FDD835;--OBRAS:#8B4513;--PPT:#C8A200;--AN:#D32F2F}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--tx);font-family:'DM Mono',monospace;font-size:13px;min-height:100vh}
-.tabs{display:flex;border-bottom:1px solid var(--bor);padding:0 1.5rem;background:var(--sur);position:sticky;top:0;z-index:10}
-.tab{padding:14px 18px;cursor:pointer;color:var(--mu);font-size:12px;letter-spacing:.05em;text-transform:uppercase;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap;font-family:'Space Grotesk',sans-serif}
-.tab.active{color:var(--tx);border-bottom-color:var(--tx)}
-.tab:hover{color:var(--tx)}
-.panel{display:none;padding:1.5rem}
-.panel.active{display:block}
-header{padding:1.5rem;border-bottom:1px solid var(--bor)}
-header h1{font-family:'Black Han Sans',sans-serif;font-size:2rem;font-weight:400;letter-spacing:.02em}
-header p{color:var(--mu);font-size:11px;margin-top:4px;letter-spacing:.05em;text-transform:uppercase}
-.legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem}
-.leg{display:flex;align-items:center;gap:6px;background:var(--sur);border:1px solid var(--bor);border-radius:4px;padding:4px 9px;font-size:11px}
-.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.sec{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:600;color:#f0ece4;margin:0 0 1rem;padding-bottom:6px;border-bottom:1px solid var(--bor);text-transform:uppercase;letter-spacing:.06em}
-.hemis{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem}
-.hcard{background:var(--sur);border:1px solid var(--bor);border-radius:8px;padding:1rem}
-.hlabel{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.8rem;font-family:'Space Grotesk',sans-serif}
-.brow{display:grid;grid-template-columns:60px 1fr 36px;align-items:center;gap:8px;margin-bottom:5px}
-.bname{font-size:11px;color:var(--mu);text-align:right}
-.btrack{height:12px;background:#222;border-radius:2px;overflow:hidden}
-.bfill{height:100%;border-radius:2px}
-.bcount{font-size:12px;font-weight:500}
-.twrap{overflow-x:auto;margin-bottom:1.5rem}
-table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap}
-thead th{background:#111114;color:var(--mu);font-weight:500;padding:7px 9px;border-bottom:1px solid var(--bor);text-align:right;text-transform:uppercase;letter-spacing:.03em}
-thead th:first-child,thead th:nth-child(2),thead th:nth-child(3){text-align:left}
-tbody tr{border-bottom:1px solid #1e1e22;transition:background .15s}
-tbody tr:hover{background:#1c1c21}
-td{padding:6px 9px;text-align:right}
-td:first-child{text-align:left;font-weight:500}
-td:nth-child(2){text-align:center;color:var(--mu)}
-tfoot td{background:#111114;border-top:1px solid var(--bor);font-weight:500}
-.reg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:1.5rem}
-.reg-card{background:var(--sur);border:1px solid var(--bor);border-radius:6px;padding:10px 12px}
-.reg-card.winner-FP{border-left:3px solid var(--FP)}
-.reg-card.winner-JP{border-left:3px solid var(--JP)}
-.reg-card.contested{border-style:dashed;border-width:1.5px}
-.reg-card.contested.winner-FP{border-left:3px dashed var(--FP)}
-.reg-card.contested.winner-JP{border-left:3px dashed var(--JP)}
-.rname{font-size:11px;color:var(--mu);margin-bottom:6px}
-.rbar{height:6px;background:#222;border-radius:3px;overflow:hidden;margin-bottom:4px;display:flex}
-.rfp{background:var(--FP);height:100%}
-.rjp{background:var(--JP);height:100%}
-.rnums{display:flex;justify-content:space-between;font-size:11px}
-.rwinner{font-weight:500;font-size:12px;margin-top:4px}
-.nat-bar{background:var(--sur);border:1px solid var(--bor);border-radius:8px;padding:1rem;margin-bottom:1rem}
-.nat-stack{height:28px;display:flex;border-radius:4px;overflow:hidden;margin:8px 0 4px}
-.nat-labels{display:flex;flex-wrap:wrap;gap:6px}
-.nat-lbl{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--mu)}
-.note{font-size:10px;color:var(--mu);line-height:1.6;margin-top:1rem}
-@media(max-width:600px){.hemis{grid-template-columns:1fr}.panel{padding:1rem}}
-#tab-actas thead th {cursor: pointer;user-select: none;}
-#tab-actas thead th::after {content: " ⇅";font-size: 10px; opacity: 0.35;}
-#tab-actas thead th.asc::after { content: " ▲"; opacity: 1; }
-#tab-actas thead th.desc::after { content: " ▼"; opacity: 1; }
-#jee-bars > div {margin-bottom: 2px;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.tab-dropdown{position:relative;display:inline-block}
-.tab-dropdown-menu{position:absolute;top:100%;left:0;background:#18181c;border:1px solid var(--bor);border-radius:0 0 6px 6px;z-index:200;min-width:170px;box-shadow:0 4px 16px #000a;overflow:hidden}
-.tab-dropdown-menu .conteo-sub{display:block;padding:9px 16px;font-size:11px;font-family:Space Grotesk,sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;color:var(--mu);transition:background .1s;white-space:nowrap;border-bottom:1px solid var(--bor);border-left:3px solid transparent}
-.tab-dropdown-menu .conteo-sub:last-child{border-bottom:none}
-.tab-dropdown-menu .conteo-sub:hover{background:#222;color:var(--tx)}
-.tab-dropdown-menu .conteo-sub.active{border-left-color:var(--tx);color:var(--tx);background:var(--sur)}
-#sankey-canvas {width: 100%;height: auto;background: var(--sur);border-radius: 6px;}
-.leg-btn.active {background: var(--tx);color: var(--bg);border-bottom: 2px solid var(--tx);}
-.leg-btn {background: var(--sur);border: 1px solid var(--bor);border-radius: 4px 4px 0 0;padding: 6px 14px;margin-right: 2px;}
-.leg-btn.active {background: var(--tx);color: var(--bg);border-bottom-color: var(--tx);}
-.peru-region {stroke: #111;stroke-width: 1.2;stroke-linejoin: round;}
-.leg-btn-container {display: flex;gap: 0;background: var(--sur);border-bottom: 1px solid var(--bor);}
-.leg-btn {background: var(--sur);border: 1px solid var(--bor);border-bottom: none;border-radius: 4px 4px 0 0;padding: 8px 16px;margin-right: 2px;color: var(--mu);cursor: pointer;font-family: 'Space Grotesk', sans-serif;font-weight: 600;text-transform: uppercase;font-size: 11px;letter-spacing: 0.05em;transition: all 0.15s;}
-.leg-btn.active {background: var(--tx);color: var(--bg);border-color: var(--bor);border-bottom-color: var(--sur);}
-.leg-btn:hover:not(.active) {background: #222;color: var(--tx);}
-#leg-map-sen, #leg-map-dip {width: 100%;height: auto;max-height: 480px;background: transparent;}
-.leg-btn.active {background: var(--tx) !important;color: var(--bg) !important;border-bottom-color: var(--tx) !important;}
-.leg-btn{background:transparent;color:var(--mu);border:none;border-radius:3px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:500;transition:all .15s}
-.leg-btn:hover{color:var(--tx)}
-.leg-btn.active{background:var(--tx);color:var(--bg);font-weight:600}
+/* ============================================================
+   PERU 2026 — ELECTORAL DASHBOARD
+   styles.css
+   ============================================================ */
+
+/* ── VARIABLES ─────────────────────────────────────────────── */
+:root {
+  --bg: #0e0e10;
+  --sur: #18181c;
+  --bor: #2a2a30;
+  --tx: #e8e6e0;
+  --mu: #7a7870;
+  --FP: #E8650A;
+  --JP: #4CAF50;
+  --RLA: #29B6F6;
+  --BG: #FDD835;
+  --OBRAS: #8B4513;
+  --PPT: #C8A200;
+  --AN: #D32F2F;
+}
+
+/* ── RESET ─────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── BASE ──────────────────────────────────────────────────── */
+body {
+  background: var(--bg);
+  color: var(--tx);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  min-height: 100vh;
+}
+
+/* ── HEADER ────────────────────────────────────────────────── */
+header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--bor);
+}
+
+header h1 {
+  font-family: 'Black Han Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+}
+
+header p {
+  color: var(--mu);
+  font-size: 11px;
+  margin-top: 4px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* ── TABS ──────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--bor);
+  padding: 0 1.5rem;
+  background: var(--sur);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab {
+  padding: 14px 18px;
+  cursor: pointer;
+  color: var(--mu);
+  font-size: 12px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  border-bottom: 2px solid transparent;
+  transition: color .2s, border-color .2s;
+  white-space: nowrap;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.tab.active {
+  color: var(--tx);
+  border-bottom-color: var(--tx);
+}
+
+.tab:hover {
+  color: var(--tx);
+}
+
+/* ── TAB DROPDOWN ──────────────────────────────────────────── */
+.tab-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.tab-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #18181c;
+  border: 1px solid var(--bor);
+  border-radius: 0 0 6px 6px;
+  z-index: 200;
+  min-width: 170px;
+  box-shadow: 0 4px 16px #000a;
+  overflow: hidden;
+}
+
+.tab-dropdown-menu .conteo-sub {
+  display: block;
+  padding: 9px 16px;
+  font-size: 11px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  cursor: pointer;
+  color: var(--mu);
+  transition: background .1s;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--bor);
+  border-left: 3px solid transparent;
+}
+
+.tab-dropdown-menu .conteo-sub:last-child {
+  border-bottom: none;
+}
+
+.tab-dropdown-menu .conteo-sub:hover {
+  background: #222;
+  color: var(--tx);
+}
+
+.tab-dropdown-menu .conteo-sub.active {
+  border-left-color: var(--tx);
+  color: var(--tx);
+  background: var(--sur);
+}
+
+/* ── PANELS ────────────────────────────────────────────────── */
+.panel {
+  display: none;
+  padding: 1.5rem;
+}
+
+.panel.active {
+  display: block;
+}
+
+/* ── LEGEND ────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--sur);
+  border: 1px solid var(--bor);
+  border-radius: 4px;
+  padding: 4px 9px;
+  font-size: 11px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── SECTION HEADING ───────────────────────────────────────── */
+.sec {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f0ece4;
+  margin: 0 0 1rem;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--bor);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* ── HEMICICLOS ────────────────────────────────────────────── */
+.hemis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.hcard {
+  background: var(--sur);
+  border: 1px solid var(--bor);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.hlabel {
+  font-size: 10px;
+  color: var(--mu);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: .8rem;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+/* ── BAR ROWS ──────────────────────────────────────────────── */
+.brow {
+  display: grid;
+  grid-template-columns: 60px 1fr 36px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.bname {
+  font-size: 11px;
+  color: var(--mu);
+  text-align: right;
+}
+
+.btrack {
+  height: 12px;
+  background: #222;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bfill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.bcount {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ── TABLES ────────────────────────────────────────────────── */
+.twrap {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+thead th {
+  background: #111114;
+  color: var(--mu);
+  font-weight: 500;
+  padding: 7px 9px;
+  border-bottom: 1px solid var(--bor);
+  text-align: right;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+thead th:first-child,
+thead th:nth-child(2),
+thead th:nth-child(3) {
+  text-align: left;
+}
+
+tbody tr {
+  border-bottom: 1px solid #1e1e22;
+  transition: background .15s;
+}
+
+tbody tr:hover {
+  background: #1c1c21;
+}
+
+td {
+  padding: 6px 9px;
+  text-align: right;
+}
+
+td:first-child {
+  text-align: left;
+  font-weight: 500;
+}
+
+td:nth-child(2) {
+  text-align: center;
+  color: var(--mu);
+}
+
+tfoot td {
+  background: #111114;
+  border-top: 1px solid var(--bor);
+  font-weight: 500;
+}
+
+/* Specific table alignment overrides */
 #senado-regional-table td, #senado-regional-table th,
 #diputados-table td, #diputados-table th,
 #senado-nacional-table td, #senado-nacional-table th,
-#rtable td, #rtable th {text-align: center;}
+#rtable td, #rtable th {
+  text-align: center;
+}
+
 #senado-regional-table td:first-child, #senado-regional-table th:first-child,
 #diputados-table td:first-child, #diputados-table th:first-child,
 #senado-nacional-table td:first-child, #senado-nacional-table th:first-child,
-#rtable td:first-child, #rtable th:first-child {text-align: left;}
-/* Responsive: mapas legislativos en móvil */
+#rtable td:first-child, #rtable th:first-child {
+  text-align: left;
+}
+
+/* ── ACTAS TABLE ───────────────────────────────────────────── */
+#tab-actas td {
+  text-align: center;
+}
+
+#tab-actas td:first-child {
+  text-align: left;
+}
+
+#tab-actas thead th {
+  cursor: pointer;
+  user-select: none;
+}
+
+#tab-actas thead th::after {
+  content: " ⇅";
+  font-size: 10px;
+  opacity: 0.35;
+}
+
+#tab-actas thead th.asc::after {
+  content: " ▲";
+  opacity: 1;
+}
+
+#tab-actas thead th.desc::after {
+  content: " ▼";
+  opacity: 1;
+}
+
+#jee-bars > div {
+  margin-bottom: 2px;
+}
+
+/* ── REGION CARDS (2da vuelta) ─────────────────────────────── */
+.reg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.reg-card {
+  background: var(--sur);
+  border: 1px solid var(--bor);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.reg-card.winner-FP { border-left: 3px solid var(--FP); }
+.reg-card.winner-JP { border-left: 3px solid var(--JP); }
+
+.reg-card.contested { border-style: dashed; border-width: 1.5px; }
+.reg-card.contested.winner-FP { border-left: 3px dashed var(--FP); }
+.reg-card.contested.winner-JP { border-left: 3px dashed var(--JP); }
+
+.rname {
+  font-size: 11px;
+  color: var(--mu);
+  margin-bottom: 6px;
+}
+
+.rbar {
+  height: 6px;
+  background: #222;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+  display: flex;
+}
+
+.rfp { background: var(--FP); height: 100%; }
+.rjp { background: var(--JP); height: 100%; }
+
+.rnums {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.rwinner {
+  font-weight: 500;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* ── NATIONAL BAR ──────────────────────────────────────────── */
+.nat-bar {
+  background: var(--sur);
+  border: 1px solid var(--bor);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.nat-stack {
+  height: 28px;
+  display: flex;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 8px 0 4px;
+}
+
+.nat-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.nat-lbl {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--mu);
+}
+
+/* ── NOTES ─────────────────────────────────────────────────── */
+.note {
+  font-size: 10px;
+  color: var(--mu);
+  line-height: 1.6;
+  margin-top: 1rem;
+}
+
+/* ── MAP ───────────────────────────────────────────────────── */
+.peru-region {
+  stroke: #111;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+
+/* ── LEGISLATIVE BUTTONS ───────────────────────────────────── */
+.leg-btn-container {
+  display: flex;
+  gap: 0;
+  background: var(--sur);
+  border-bottom: 1px solid var(--bor);
+  margin-bottom: 1.2rem;
+}
+
+.leg-btn {
+  background: transparent;
+  color: var(--mu);
+  border: none;
+  border-radius: 3px;
+  padding: 5px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 500;
+  transition: all .15s;
+}
+
+.leg-btn:hover {
+  color: var(--tx);
+}
+
+.leg-btn.active {
+  background: var(--tx);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+/* ── SANKEY ────────────────────────────────────────────────── */
+#sankey-canvas {
+  width: 100%;
+  height: auto;
+  background: var(--sur);
+  border-radius: 6px;
+}
+
+/* ── ANIMATIONS ────────────────────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .4; }
+}
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
 @media (max-width: 700px) {
+  .hemis {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    padding: 1rem;
+  }
+
   #leg-view-sen_reg > div:first-of-type,
-  #leg-view-dip > div:first-of-type {grid-template-columns: 1fr !important;}
+  #leg-view-dip > div:first-of-type {
+    grid-template-columns: 1fr !important;
+  }
+
   #leg-view-sen_reg svg,
-  #leg-view-dip svg {max-height: 350px !important;width: 100% !important;}
-  .leg-legend {margin-top: 12px;}}
-#tab-actas td { text-align:center; }
-#tab-actas td:first-child { text-align:left; }
+  #leg-view-dip svg {
+    max-height: 350px !important;
+    width: 100% !important;
+  }
+}
