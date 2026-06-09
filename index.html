@@ -30,6 +30,11 @@
   </div>
 
   <div class="panel active" id="tab-resultados">
+    <div class="vuelta-tabs">
+      <div class="vuelta-tab active" id="vtab-r1" onclick="showVuelta(1)">1ra Vuelta</div>
+      <div class="vuelta-tab" id="vtab-r2" onclick="showVuelta(2)">2da Vuelta — Conteo</div>
+    </div>
+    <div id="vuelta-r1">
     <div id="region-counters" style="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:.75rem;flex-wrap:wrap">
       <p class="sec" style="margin:0;border:none;padding:0">Mapa electoral</p>
@@ -97,6 +102,52 @@
         <tfoot><tr id="nat-row"></tr></tfoot>
       </table>
     </div>
+    </div><!-- /vuelta-r1 -->
+
+    <div id="vuelta-r2" style="display:none">
+      <div class="r2-card" style="text-align:center">
+        <p class="sec" style="margin:0 0 8px;border:none;padding:0">Segunda Vuelta — Conteo ONPE al <strong id="r2-pct"></strong></p>
+        <div style="display:flex;justify-content:center;gap:32px;flex-wrap:wrap">
+          <div><div style="font-size:24px;font-weight:800;color:#4CAF50" id="r2-s-pct">50.057%</div><div style="font-size:11px">SÁNCHEZ (JP)</div><div style="font-size:11px;opacity:.7" id="r2-s-v">8'911,541</div></div>
+          <div><div style="font-size:24px;font-weight:800;color:#E8650A" id="r2-k-pct">49.943%</div><div style="font-size:11px">FUJIMORI (FP)</div><div style="font-size:11px;opacity:.7" id="r2-k-v">8'891,320</div></div>
+        </div>
+        <div style="margin-top:8px;font-size:12px" id="r2-margin">Margen: Sánchez +20,221 votos (0.114pp)</div>
+      </div>
+
+      <div class="r2-card">
+        <p class="sec" style="margin:0 0 8px;border:none;padding:0">Evolución del margen (Keiko − Sánchez) vs % contado</p>
+        <div style="position:relative;width:100%;height:260px"><canvas id="r2-margin-chart"></canvas></div>
+        <p class="note" style="margin-top:6px">Margen en miles de votos. Cruce de línea cero = cambio de líder. Keiko lideró hasta ~94%, Sánchez tomó la delantera con el voto rural del Sur; el voto extranjero (pro-Fujimori) recorta al final.</p>
+      </div>
+
+      <div class="r2-grid">
+        <div class="r2-card">
+          <p class="sec" style="margin:0 0 8px;border:none;padding:0">🌎 Voto Extranjero por país (30.5% contado)</p>
+          <table style="width:100%;font-size:11px">
+            <tr><th style="text-align:left">País</th><th>Actas</th><th>%cont</th><th>K%</th><th>S%</th></tr>
+            <tbody id="r2-ext-tbody"></tbody>
+          </table>
+          <p class="note" style="margin-top:6px">EEUU consolida 77.8%K con la mitad contada. Italia (251) y Japón (81) — ambos pro-K histórico — aún en 0%.</p>
+        </div>
+        <div class="r2-card">
+          <p class="sec" style="margin:0 0 8px;border:none;padding:0">⚖️ Estado de la definición</p>
+          <table style="width:100%;font-size:11px">
+            <tr><th style="text-align:left">Bucket</th><th>Actas</th><th>Neto proy. (K)</th></tr>
+            <tbody id="r2-def-tbody"></tbody>
+          </table>
+          <div id="r2-proy" style="margin-top:10px;padding:8px;border:1px solid var(--bor);border-radius:4px;font-size:12px"></div>
+        </div>
+      </div>
+
+      <div class="r2-card">
+        <p class="sec" style="margin:0 0 8px;border:none;padding:0">Resultados R2 por región</p>
+        <div style="overflow-x:auto"><table style="width:100%;font-size:11px">
+          <tr><th style="text-align:left">Región</th><th>Contado</th><th>Fujimori</th><th>Sánchez</th><th>Pend.</th><th>JEE</th><th>Líder</th></tr>
+          <tbody id="r2-reg-tbody"></tbody>
+        </table></div>
+        <p class="note" style="margin-top:6px">Modelo pre-electoral proyectaba Sánchez 52.3% — el real va ~50/50: el voto extranjero y la transferencia OBRAS/PPT resultaron más pro-Fujimori que lo modelado. JEE: 1,547 actas observadas, 914 de Lima (zona 63.5%K) — su validación es el factor decisivo final.</p>
+      </div>
+    </div><!-- /vuelta-r2 -->
   </div>
   <div class="panel" id="tab-actas">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:1.2rem">
@@ -242,35 +293,34 @@
   // ============================================================
 const DATA = {
     regions: {
-      // === REGIONES ONPE AL 100% ===
-    "Amazonas": {"conteo": 98.200, "pct": {"FP": 17.395, "JP": 36.272, "RLA": 3.697, "BG": 3.636, "OBRAS": 10.661, "PPT": 2.489, "AN": 5.982}, "valid": 160490, "blanco": 35486, "nulo": 14895, "actas_t": 1278, "actas_c": 1255, "actas_j": 23, "actas_p": 0},
-    "Ancash": {"conteo": 97.494, "pct": {"FP": 17.967, "JP": 14.935, "RLA": 6.036, "BG": 7.432, "OBRAS": 10.046, "PPT": 9.941, "AN": 8.861}, "valid": 530228, "blanco": 101808, "nulo": 48606, "actas_t": 3472, "actas_c": 3385, "actas_j": 87, "actas_p": 0},
-    "Apurímac": {"conteo": 98.330, "pct": {"FP": 6.890, "JP": 40.976, "RLA": 3.158, "BG": 3.643, "OBRAS": 14.149, "PPT": 1.459, "AN": 10.788}, "valid": 197899, "blanco": 39148, "nulo": 14317, "actas_t": 1317, "actas_c": 1295, "actas_j": 22, "actas_p": 0},
-    "Arequipa": {"conteo": 99.336, "pct": {"FP": 7.309, "JP": 10.073, "RLA": 10.597, "BG": 18.654, "OBRAS": 10.911, "PPT": 8.323, "AN": 9.314}, "valid": 874658, "blanco": 74409, "nulo": 38589, "actas_t": 4215, "actas_c": 4187, "actas_j": 28, "actas_p": 0},
-    "Ayacucho": {"conteo": 99.263, "pct": {"FP": 8.102, "JP": 31.301, "RLA": 2.736, "BG": 5.549, "OBRAS": 14.466, "PPT": 2.311, "AN": 14.461}, "valid": 282128, "blanco": 52484, "nulo": 18796, "actas_t": 1900, "actas_c": 1886, "actas_j": 14, "actas_p": 0},
-    "Cajamarca": {"conteo": 97.358, "pct": {"FP": 13.855, "JP": 41.615, "RLA": 3.246, "BG": 4.601, "OBRAS": 10.998, "PPT": 3.149, "AN": 4.517}, "valid": 628883, "blanco": 121405, "nulo": 52412, "actas_t": 4240, "actas_c": 4128, "actas_j": 112, "actas_p": 0},
-    "Callao": {"conteo": 96.515, "pct": {"FP": 20.692, "JP": 3.017, "RLA": 14.974, "BG": 15.007, "OBRAS": 8.167, "PPT": 12.099, "AN": 5.946}, "valid": 559072, "blanco": 60242, "nulo": 28323, "actas_t": 2898, "actas_c": 2797, "actas_j": 101, "actas_p": 0},
-    "Cusco": {"conteo": 96.987, "pct": {"FP": 6.091, "JP": 22.856, "RLA": 4.738, "BG": 8.897, "OBRAS": 15.758, "PPT": 2.885, "AN": 14.720}, "valid": 674005, "blanco": 95834, "nulo": 47207, "actas_t": 3983, "actas_c": 3863, "actas_j": 120, "actas_p": 0},
-    "Huancavelica": {"conteo": 96.229, "pct": {"FP": 7.050, "JP": 43.361, "RLA": 2.341, "BG": 3.238, "OBRAS": 13.551, "PPT": 1.723, "AN": 9.275}, "valid": 166721, "blanco": 31594, "nulo": 11398, "actas_t": 1273, "actas_c": 1225, "actas_j": 48, "actas_p": 0},
-    "Huánuco": {"conteo": 95.301, "pct": {"FP": 15.504, "JP": 29.549, "RLA": 5.929, "BG": 4.676, "OBRAS": 14.143, "PPT": 5.616, "AN": 5.923}, "valid": 327254, "blanco": 69747, "nulo": 23534, "actas_t": 2341, "actas_c": 2231, "actas_j": 110, "actas_p": 0},
-    "Ica": {"conteo": 95.456, "pct": {"FP": 20.301, "JP": 7.727, "RLA": 9.404, "BG": 9.856, "OBRAS": 10.706, "PPT": 11.573, "AN": 6.620}, "valid": 461020, "blanco": 68148, "nulo": 27550, "actas_t": 2443, "actas_c": 2332, "actas_j": 111, "actas_p": 0},
-    "Junín": {"conteo": 98.158, "pct": {"FP": 16.993, "JP": 12.216, "RLA": 7.607, "BG": 8.030, "OBRAS": 11.123, "PPT": 7.240, "AN": 11.061}, "valid": 625553, "blanco": 104805, "nulo": 41249, "actas_t": 3691, "actas_c": 3623, "actas_j": 68, "actas_p": 0},
-    "La Libertad": {"conteo": 98.246, "pct": {"FP": 20.225, "JP": 9.394, "RLA": 8.225, "BG": 9.850, "OBRAS": 7.097, "PPT": 7.979, "AN": 4.084}, "valid": 918443, "blanco": 156119, "nulo": 72606, "actas_t": 5302, "actas_c": 5209, "actas_j": 93, "actas_p": 0},
-    "Lambayeque": {"conteo": 99.192, "pct": {"FP": 26.421, "JP": 10.746, "RLA": 8.574, "BG": 10.313, "OBRAS": 7.502, "PPT": 9.239, "AN": 4.463}, "valid": 661964, "blanco": 99640, "nulo": 49500, "actas_t": 3590, "actas_c": 3561, "actas_j": 29, "actas_p": 0},
-    "Lima Metropolitana": {"conteo": 96.755, "pct": {"FP": 17.906, "JP": 3.288, "RLA": 19.864, "BG": 15.090, "OBRAS": 9.142, "PPT": 8.922, "AN": 6.825}, "valid": 5896399, "blanco": 538432, "nulo": 249285, "actas_t": 29247, "actas_c": 28298, "actas_j": 949, "actas_p": 0},
-    "Loreto": {"conteo": 87.319, "pct": {"FP": 27.817, "JP": 10.403, "RLA": 6.706, "BG": 3.608, "OBRAS": 4.235, "PPT": 11.684, "AN": 4.303}, "valid": 299167, "blanco": 74471, "nulo": 22801, "actas_t": 2697, "actas_c": 2355, "actas_j": 342, "actas_p": 0},
-    "Madre de Dios": {"conteo": 95.464, "pct": {"FP": 13.544, "JP": 23.308, "RLA": 3.394, "BG": 5.211, "OBRAS": 14.575, "PPT": 6.330, "AN": 8.096}, "valid": 77215, "blanco": 17541, "nulo": 4812, "actas_t": 507, "actas_c": 484, "actas_j": 23, "actas_p": 0},
-    "Moquegua": {"conteo": 98.789, "pct": {"FP": 6.641, "JP": 12.845, "RLA": 5.808, "BG": 10.427, "OBRAS": 12.193, "PPT": 5.410, "AN": 10.517}, "valid": 112716, "blanco": 11855, "nulo": 5196, "actas_t": 578, "actas_c": 571, "actas_j": 7, "actas_p": 0},
-    "Pasco": {"conteo": 97.880, "pct": {"FP": 18.839, "JP": 18.674, "RLA": 6.599, "BG": 4.456, "OBRAS": 11.924, "PPT": 4.092, "AN": 8.890}, "valid": 113389, "blanco": 21707, "nulo": 7816, "actas_t": 802, "actas_c": 785, "actas_j": 17, "actas_p": 0},
-    "Piura": {"conteo": 94.603, "pct": {"FP": 27.914, "JP": 11.326, "RLA": 6.760, "BG": 8.818, "OBRAS": 7.440, "PPT": 10.685, "AN": 4.664}, "valid": 835658, "blanco": 172590, "nulo": 78649, "actas_t": 5281, "actas_c": 4996, "actas_j": 285, "actas_p": 0},
-    "Puno": {"conteo": 98.940, "pct": {"FP": 3.906, "JP": 24.901, "RLA": 1.917, "BG": 4.152, "OBRAS": 17.676, "PPT": 1.632, "AN": 11.358}, "valid": 644304, "blanco": 77090, "nulo": 40197, "actas_t": 3397, "actas_c": 3361, "actas_j": 36, "actas_p": 0},
-    "San Martín": {"conteo": 93.607, "pct": {"FP": 23.253, "JP": 23.777, "RLA": 5.886, "BG": 4.487, "OBRAS": 11.384, "PPT": 5.079, "AN": 4.423}, "valid": 365553, "blanco": 98012, "nulo": 35897, "actas_t": 2534, "actas_c": 2372, "actas_j": 162, "actas_p": 0},
-    "Tacna": {"conteo": 98.847, "pct": {"FP": 6.864, "JP": 11.874, "RLA": 6.214, "BG": 11.467, "OBRAS": 14.628, "PPT": 7.340, "AN": 9.938}, "valid": 218328, "blanco": 18691, "nulo": 9077, "actas_t": 1041, "actas_c": 1029, "actas_j": 12, "actas_p": 0},
-    "Tumbes": {"conteo": 92.563, "pct": {"FP": 33.952, "JP": 6.855, "RLA": 5.919, "BG": 5.542, "OBRAS": 4.901, "PPT": 14.888, "AN": 4.954}, "valid": 102802, "blanco": 19904, "nulo": 8468, "actas_t": 632, "actas_c": 585, "actas_j": 47, "actas_p": 0},
-    "Ucayali": {"conteo": 90.026, "pct": {"FP": 29.587, "JP": 12.787, "RLA": 5.690, "BG": 4.425, "OBRAS": 8.503, "PPT": 10.482, "AN": 3.987}, "valid": 204199, "blanco": 52957, "nulo": 15376, "actas_t": 1564, "actas_c": 1408, "actas_j": 156, "actas_p": 0},
-    "Extranjero": {"conteo": 91.781, "pct": {"FP": 16.866, "JP": 2.591, "RLA": 25.152, "BG": 10.156, "OBRAS": 10.392, "PPT": 11.824, "AN": 6.919}, "valid": 284378, "blanco": 68094, "nulo": 20693, "actas_t": 2543, "actas_c": 2334, "actas_j": 209, "actas_p": 0},
-      "Lima Provincias": {"conteo": 84.126,"pct": {"FP": 21.572, "JP": 8.415, "RLA": 9.778, "BG": 9.534, "OBRAS": 10.327, "PPT": 7.152, "AN": 7.038},"valid": 382581,"blanco": 72351, "nulo": 89974, "actas_t": 2879, "actas_c": 2422, "actas_j": 457, "actas_p": 0}
-    },
+    "Amazonas": {"conteo": 100.00, "pct": {"FP": 17.374, "JP": 36.274, "RLA": 3.691, "BG": 3.652, "OBRAS": 10.643, "PPT": 2.488, "AN": 5.979}, "valid": 163482, "blanco": 36318, "nulo": 15329, "actas_t": 1278, "actas_c": 1278, "actas_j": 0, "actas_p": 0},
+     "Ancash": {"conteo": 100.00, "pct": {"FP": 18.000, "JP": 15.004, "RLA": 6.044, "BG": 7.402, "OBRAS": 10.062, "PPT": 9.942, "AN": 8.843}, "valid": 543023, "blanco": 104367, "nulo": 50131, "actas_t": 3472, "actas_c": 3472, "actas_j": 0, "actas_p": 0},
+    "Apurímac": {"conteo": 100.00, "pct": {"FP": 6.896, "JP": 41.062, "RLA": 3.159, "BG": 3.633, "OBRAS": 14.124, "PPT": 1.457, "AN": 10.768}, "valid": 200989, "blanco": 39781, "nulo": 14640, "actas_t": 1317, "actas_c": 1317, "actas_j": 0, "actas_p": 0},
+    "Arequipa": {"conteo": 100.00, "pct": {"FP": 7.325, "JP": 10.092, "RLA": 10.600, "BG": 18.655, "OBRAS": 10.923, "PPT": 8.334, "AN": 9.319}, "valid": 879565, "blanco": 75007, "nulo": 39576, "actas_t": 4215, "actas_c": 4215, "actas_j": 0, "actas_p": 0},
+    "Ayacucho": {"conteo": 100.00, "pct": {"FP": 8.115, "JP": 31.434, "RLA": 2.728, "BG": 5.533, "OBRAS": 14.455, "PPT": 2.304, "AN": 14.433}, "valid": 284131, "blanco": 52951, "nulo": 19270, "actas_t": 1900, "actas_c": 1900, "actas_j": 0, "actas_p": 0},
+    "Cajamarca": {"conteo": 100.00, "pct": {"FP": 13.850, "JP": 41.724, "RLA": 3.238, "BG": 4.601, "OBRAS": 10.994, "PPT": 3.147, "AN": 4.506}, "valid": 644624, "blanco": 124649, "nulo": 54285, "actas_t": 4240, "actas_c": 4240, "actas_j": 0, "actas_p": 0},
+    "Callao": {"conteo": 100.00, "pct": {"FP": 20.696, "JP": 3.010, "RLA": 15.033, "BG": 15.001, "OBRAS": 8.159, "PPT": 12.123, "AN": 5.946}, "valid": 577304, "blanco": 62495, "nulo": 31746, "actas_t": 2898, "actas_c": 2898, "actas_j": 0, "actas_p": 0},
+    "Cusco": {"conteo": 100.00, "pct": {"FP": 6.137, "JP": 22.849, "RLA": 4.727, "BG": 8.887, "OBRAS": 15.768, "PPT": 2.890, "AN": 14.745}, "valid": 693361, "blanco": 99060, "nulo": 49391, "actas_t": 3983, "actas_c": 3983, "actas_j": 0, "actas_p": 0},
+    "Huancavelica": {"conteo": 100.00, "pct": {"FP": 7.076, "JP": 43.400, "RLA": 2.357, "BG": 3.241, "OBRAS": 13.549, "PPT": 1.707, "AN": 9.249}, "valid": 172956, "blanco": 32882, "nulo": 12163, "actas_t": 1273, "actas_c": 1273, "actas_j": 0, "actas_p": 0},
+    "Huánuco": {"conteo": 100.00, "pct": {"FP": 15.464, "JP": 29.876, "RLA": 5.890, "BG": 4.634, "OBRAS": 14.114, "PPT": 5.575, "AN": 5.888}, "valid": 342637, "blanco": 73344, "nulo": 24876, "actas_t": 2341, "actas_c": 2341, "actas_j": 0, "actas_p": 0},
+    "Ica": {"conteo": 100.00, "pct": {"FP": 20.331, "JP": 7.727, "RLA": 9.393, "BG": 9.871, "OBRAS": 10.689, "PPT": 11.599, "AN": 6.616}, "valid": 482271, "blanco": 71505, "nulo": 29446, "actas_t": 2443, "actas_c": 2443, "actas_j": 0, "actas_p": 0},
+    "Junín": {"conteo": 100.00, "pct": {"FP": 17.105, "JP": 12.318, "RLA": 7.593, "BG": 7.986, "OBRAS": 11.177, "PPT": 7.222, "AN": 11.013}, "valid": 635087, "blanco": 107546, "nulo": 42977, "actas_t": 3691, "actas_c": 3691, "actas_j": 0, "actas_p": 0},
+    "La Libertad": {"conteo": 100.00, "pct": {"FP": 20.261, "JP": 9.465, "RLA": 8.203, "BG": 9.816, "OBRAS": 7.094, "PPT": 7.960, "AN": 4.082}, "valid": 932793, "blanco": 159363, "nulo": 74438, "actas_t": 5302, "actas_c": 5302, "actas_j": 0, "actas_p": 0},
+    "Lambayeque": {"conteo": 100.00, "pct": {"FP": 26.410, "JP": 10.744, "RLA": 8.594, "BG": 10.334, "OBRAS": 7.508, "PPT": 9.247, "AN": 4.468}, "valid": 666815, "blanco": 100404, "nulo": 50644, "actas_t": 3590, "actas_c": 3590, "actas_j": 0, "actas_p": 0},
+    "Lima Metropolitana": {"conteo": 100.00, "pct": {"FP": 17.913, "JP": 3.279, "RLA": 19.921, "BG": 15.106, "OBRAS": 9.136, "PPT": 8.926, "AN": 6.815}, "valid": 6082297, "blanco": 555344, "nulo": 271755, "actas_t": 29247, "actas_c": 29247, "actas_j": 0, "actas_p": 0},
+    "Lima Provincias": {"conteo": 100.00, "pct": {"FP": 21.310, "JP": 8.626, "RLA": 8.236, "BG": 8.912, "OBRAS": 10.078, "PPT": 6.918, "AN": 7.061}, "valid": 455023, "blanco": 84173, "nulo": 109559, "actas_t": 2879, "actas_c": 2879, "actas_j": 0, "actas_p": 0},
+    "Loreto": {"conteo": 100.00, "pct": {"FP": 28.364, "JP": 9.860, "RLA": 6.690, "BG": 3.584, "OBRAS": 4.179, "PPT": 11.849, "AN": 4.304}, "valid": 341326, "blanco": 85358, "nulo": 27394, "actas_t": 2697, "actas_c": 2697, "actas_j": 0, "actas_p": 0},
+    "Madre de Dios": {"conteo": 100.00, "pct": {"FP": 13.550, "JP": 23.452, "RLA": 3.417, "BG": 5.186, "OBRAS": 14.591, "PPT": 6.296, "AN": 8.052}, "valid": 80796, "blanco": 18508, "nulo": 5242, "actas_t": 507, "actas_c": 507, "actas_j": 0, "actas_p": 0},
+    "Moquegua": {"conteo": 100.00, "pct": {"FP": 6.642, "JP": 12.917, "RLA": 5.793, "BG": 10.451, "OBRAS": 12.197, "PPT": 5.393, "AN": 10.518}, "valid": 113954, "blanco": 12001, "nulo": 5361, "actas_t": 578, "actas_c": 578, "actas_j": 0, "actas_p": 0},
+    "Pasco": {"conteo": 100.00, "pct": {"FP": 18.870, "JP": 18.666, "RLA": 6.609, "BG": 4.478, "OBRAS": 11.970, "PPT": 4.093, "AN": 8.882}, "valid": 115752, "blanco": 22142, "nulo": 8150, "actas_t": 802, "actas_c": 802, "actas_j": 0, "actas_p": 0},
+    "Piura": {"conteo": 100.00, "pct": {"FP": 28.033, "JP": 11.467, "RLA": 6.681, "BG": 8.764, "OBRAS": 7.423, "PPT": 10.635, "AN": 4.653}, "valid": 880019, "blanco": 183282, "nulo": 84163, "actas_t": 5281, "actas_c": 5281, "actas_j": 0, "actas_p": 0},
+    "Puno": {"conteo": 100.00, "pct": {"FP": 3.904, "JP": 24.978, "RLA": 1.913, "BG": 4.150, "OBRAS": 17.721, "PPT": 1.630, "AN": 11.347}, "valid": 650408, "blanco": 77890, "nulo": 41308, "actas_t": 3397, "actas_c": 3397, "actas_j": 0, "actas_p": 0},
+    "San Martín": {"conteo": 100.00, "pct": {"FP": 23.261, "JP": 23.936, "RLA": 5.874, "BG": 4.463, "OBRAS": 11.368, "PPT": 5.079, "AN": 4.388}, "valid": 389735, "blanco": 104699, "nulo": 38975, "actas_t": 2534, "actas_c": 2534, "actas_j": 0, "actas_p": 0},
+    "Tacna": {"conteo": 100.00, "pct": {"FP": 6.852, "JP": 11.916, "RLA": 6.206, "BG": 11.445, "OBRAS": 14.641, "PPT": 7.322, "AN": 9.939}, "valid": 220730, "blanco": 18885, "nulo": 9354, "actas_t": 1041, "actas_c": 1041, "actas_j": 0, "actas_p": 0},
+    "Tumbes": {"conteo": 100.00, "pct": {"FP": 34.163, "JP": 6.993, "RLA": 5.917, "BG": 5.481, "OBRAS": 4.924, "PPT": 14.826, "AN": 4.910}, "valid": 110792, "blanco": 21599, "nulo": 9363, "actas_t": 632, "actas_c": 632, "actas_j": 0, "actas_p": 0},
+    "Ucayali": {"conteo": 100.00, "pct": {"FP": 29.709, "JP": 12.877, "RLA": 5.718, "BG": 4.407, "OBRAS": 8.463, "PPT": 10.390, "AN": 3.998}, "valid": 225500, "blanco": 58723, "nulo": 18241, "actas_t": 1564, "actas_c": 1564, "actas_j": 0, "actas_p": 0},
+    "Extranjero": {"conteo": 100.00, "pct": {"FP": 17.048, "JP": 2.598, "RLA": 24.986, "BG": 10.082, "OBRAS": 10.477, "PPT": 11.868, "AN": 6.876}, "valid": 307692, "blanco": 74792, "nulo": 28593, "actas_t": 2543, "actas_c": 2543, "actas_j": 0, "actas_p": 0}
+},
     // PUNTOS HISTÓRICOS DE CONTEO NACIONAL
     historial_points: [
       {conteo: 78,FP: 16.68,JP: 10.57,RLA: 12.60,BG: 11.70,OBRAS: 10.03,PPT: 7.83,AN: 7.42 },
@@ -279,17 +329,18 @@ const DATA = {
       {conteo: 93.850,FP: 17.047,JP: 12.010,RLA: 11.917,BG: 11.059,OBRAS: 10.169,PPT: 7.884,AN: 7.347},
       {conteo: 94.650,FP: 17.048,JP: 12.035,RLA:11.906,BG:11.043,OBRAS: 10.169, PPT: 7.883, AN: 7.340},
       {conteo: 96.539,FP: 17.079,JP: 12.039,RLA:11.887,BG:11.010,OBRAS: 10.172, PPT: 7.900, AN: 7.330},
+      {conteo: 100.00,FP: 17.192,JP: 12.039,RLA:11.912,BG:10.978,OBRAS: 10.150, PPT: 7.926, AN: 7.296},
     ],
     // 3. OTROS DATOS FIJOS
-    last_update: {"datetime": "28/04/2026 20:16", "conteo_pct": 96.539, "timezone": "hora Perú (PET)"},
-    votos_totales: {valid: 16222426, nulo: 987249, blanco: 2282213},
+    last_update: {"datetime": "09/06/2026 19:35", "conteo_pct": 100.00, "conteo_r2_pct": 95.979, "timezone": "hora Perú (PET)"},
+    votos_totales: {valid: 16738039, nulo: 1056811, blanco: 2372895},
     prev_actas_j: {
-      "Amazonas":72,"Ancash":241,"Apurímac":47,"Arequipa":51,"Ayacucho":35,
-      "Cajamarca":121,"Callao":113,"Cusco":151,"Extranjero":509,"Huancavelica":62,
-      "Huánuco":162,"Ica":230,"Junín":171,"La Libertad":174,"Lambayeque":98,
-      "Lima Metropolitana":1311,"Lima Provincias":457,"Loreto":353,"Madre de Dios":54,
-      "Moquegua":22,"Pasco":55,"Piura":428,"Puno":74,"San Martín":162,
-      "Tacna":20,"Tumbes":59,"Ucayali":188},    
+      "Amazonas":23,"Ancash":87,"Apurímac":22,"Arequipa":28,"Ayacucho":14,
+      "Cajamarca":112,"Callao":101,"Cusco":120,"Extranjero":209,"Huancavelica":48,
+      "Huánuco":110,"Ica":111,"Junín":68,"La Libertad":93,"Lambayeque":29,
+      "Lima Metropolitana":949,"Lima Provincias":457,"Loreto":342,"Madre de Dios":23,
+      "Moquegua":7,"Pasco":17,"Piura":285,"Puno":36,"San Martín":162,
+      "Tacna":12,"Tumbes":47,"Ucayali":156},    
     ganador_2021: {"Lima Metropolitana": "HDS", "Lima Provincias": "FP", "Callao": "FP", "Ancash": "PL", "Apurímac": "PL", "Arequipa": "FP", "Ayacucho": "PL", "Cajamarca": "PL", "Cusco": "PL", "Huancavelica": "PL", "Huánuco": "PL", "Ica": "FP", "Junín": "PL", "La Libertad": "APP", "Lambayeque": "FP", "Loreto": "FP", "Madre de Dios": "PL", "Moquegua": "PL", "Pasco": "PL", "Piura": "FP", "Puno": "PL", "San Martín": "FP", "Tacna": "PL", "Tumbes": "FP", "Ucayali": "FP", "Amazonas": "PL", "Extranjero": "FP"},
     color_2021: {"FP": "#E8650A", "PL": "#D32F2F", "HDS": "#FF69B4", "APP": "#1565C0"},
     label_2021: {"FP": "Keiko Fujimori", "PL": "Pedro Castillo", "HDS": "H. de Soto", "APP": "César Acuña"},
@@ -299,69 +350,108 @@ const DATA = {
   // DATOS DE SENADO (NACIONAL Y REGIONAL) Y DIPUTADOS
   // ============================================================
   // --- SENADO NACIONAL ---
-    senado_nacional: {votos:{"FP":1798149, "JP":1438776, "RLA":1368896, "BG":1301078, "OBRAS":1058398, "PPT":695467, "AN":1002676}, actas:{total_actas:92766, cont:74521, jee:17579, pend:666}, conteo: 80.332, valid: 12202663, blanco: 1764200,nulo: 2330773},
+    senado_nacional: {votos: {"FP": 2225767, "JP": 1807723, "RLA": 1631683, "BG": 1548236, "OBRAS": 1306202, "PPT": 858568, "AN": 1209401},
+                      actas: {total_actas: 92766, cont: 92657, jee: 109, pend: 0}, conteo: 99.883, valid: 14783304, blanco: 2273366, nulo: 3111335},
   // --- SENADO REGIONAL ---
     senado_regional: {
-      "Amazonas": {"conteo": 83.099, "votos": {"FP": 25.790, "JP": 0, "RLA": 6.719, "BG": 5.462, "OBRAS": 0, "PPT": 0, "AN": 10.422}, "valid": 74173, "blanco": 79957, "nulo": 22822, "actas": {"total_actas": 1278, "cont": 1062, "jee": 216, "pend": 0}},
-  "Ancash": {"conteo": 81.826, "votos": {"FP": 16.071, "JP": 15.221, "RLA": 5.821, "BG": 7.324, "OBRAS": 8.885, "PPT": 8.896, "AN": 8.933}, "valid": 369853, "blanco": 100128, "nulo": 97993, "actas": {"total_actas": 3472, "cont": 2841, "jee": 630, "pend": 1}},
-  "Apurímac": {"conteo": 86.864, "votos": {"FP": 5.388, "JP": 38.687, "RLA": 2.484, "BG": 3.655, "OBRAS": 11.386, "PPT": 1.041, "AN": 11.032}, "valid": 156614, "blanco": 33023, "nulo": 31524, "actas": {"total_actas": 1317, "cont": 1144, "jee": 173, "pend": 0}},
-  "Arequipa": {"conteo": 92.622, "votos": {"FP": 6.071, "JP": 10.857, "RLA": 10.378, "BG": 20.009, "OBRAS": 10.228, "PPT": 7.611, "AN": 10.533}, "valid": 702888, "blanco": 93719, "nulo": 124747, "actas": {"total_actas": 4215, "cont": 3904, "jee": 311, "pend": 0}},
-  "Ayacucho": {"conteo": 88.158, "votos": {"FP": 6.774, "JP": 30.022, "RLA": 2.600, "BG": 5.564, "OBRAS": 11.872, "PPT": 1.655, "AN": 15.311}, "valid": 219491, "blanco": 45217, "nulo": 48133, "actas": {"total_actas": 1900, "cont": 1675, "jee": 225, "pend": 0}},
-  "Cajamarca": {"conteo": 83.561, "votos": {"FP": 19.385, "JP": 0, "RLA": 4.687, "BG": 7.352, "OBRAS": 15.574, "PPT": 3.954, "AN": 7.873}, "valid": 278664, "blanco": 325235, "nulo": 82743, "actas": {"total_actas": 4240, "cont": 3543, "jee": 697, "pend": 0}},
-  "Callao": {"conteo": 92.719, "votos": {"FP": 18.863, "JP": 3.302, "RLA": 15.235, "BG": 16.270, "OBRAS": 7.925, "PPT": 9.500, "AN": 7.271}, "valid": 447902, "blanco": 71645, "nulo": 102383, "actas": {"total_actas": 2898, "cont": 2687, "jee": 185, "pend": 26}},
-  "Cusco": {"conteo": 86.593, "votos": {"FP": 4.542, "JP": 22.685, "RLA": 4.140, "BG": 9.203, "OBRAS": 13.240, "PPT": 1.989, "AN": 15.825}, "valid": 515740, "blanco": 94659, "nulo": 118253, "actas": {"total_actas": 3983, "cont": 3449, "jee": 534, "pend": 0}},
-  "Huancavelica": {"conteo": 87.510, "votos": {"FP": 7.489, "JP": 53.380, "RLA": 3.029, "BG": 3.238, "OBRAS": 0, "PPT": 1.997, "AN": 0}, "valid": 112560, "blanco": 51564, "nulo": 26465, "actas": {"total_actas": 1273, "cont": 1114, "jee": 159, "pend": 0}},
-  "Huánuco": {"conteo": 81.803, "votos": {"FP": 13.245, "JP": 29.242, "RLA": 7.902, "BG": 4.259, "OBRAS": 12.165, "PPT": 5.396, "AN": 5.726}, "valid": 244696, "blanco": 56853, "nulo": 56882, "actas": {"total_actas": 2341, "cont": 1915, "jee": 426, "pend": 0}},
-  "Ica": {"conteo": 74.662, "votos": {"FP": 17.833, "JP": 8.227, "RLA": 9.204, "BG": 10.260, "OBRAS": 9.933, "PPT": 8.393, "AN": 7.279}, "valid": 308386, "blanco": 55322, "nulo": 72805, "actas": {"total_actas": 2443, "cont": 1824, "jee": 619, "pend": 0}},
-  "Junín": {"conteo": 86.941, "votos": {"FP": 14.859, "JP": 12.433, "RLA": 7.402, "BG": 8.837, "OBRAS": 9.979, "PPT": 5.482, "AN": 12.819}, "valid": 469099, "blanco": 93686, "nulo": 120832, "actas": {"total_actas": 3691, "cont": 3209, "jee": 482, "pend": 0}},
-  "La Libertad": {"conteo": 80.592, "votos": {"FP": 17.583, "JP": 9.299, "RLA": 7.132, "BG": 9.366, "OBRAS": 6.245, "PPT": 5.703, "AN": 4.311}, "valid": 671195, "blanco": 108025, "nulo": 160173, "actas": {"total_actas": 5302, "cont": 4273, "jee": 1029, "pend": 0}},
-  "Lambayeque": {"conteo": 81.671, "votos": {"FP": 24.359, "JP": 10.667, "RLA": 7.834, "BG": 10.819, "OBRAS": 6.775, "PPT": 6.807, "AN": 4.630}, "valid": 461154, "blanco": 96363, "nulo": 110567, "actas": {"total_actas": 3590, "cont": 2932, "jee": 658, "pend": 0}},
-  "Lima Metropolitana": {"conteo": 90.587, "votos": {"FP": 15.749, "JP": 2.978, "RLA": 19.923, "BG": 16.479, "OBRAS": 8.489, "PPT": 6.859, "AN": 8.663}, "valid": 4292796, "blanco": 640268, "nulo": 741782, "actas": {"total_actas": 26368, "cont": 23886, "jee": 1963, "pend": 519}},
-  "Lima Provincias": {"conteo": 84.682, "votos": {"FP": 21.563, "JP": 8.431, "RLA": 9.782, "BG": 9.526, "OBRAS": 10.332, "PPT": 7.140, "AN": 7.051}, "valid": 384612, "blanco": 72739, "nulo": 90517, "actas": {"total_actas": 2879, "cont": 2438, "jee": 441, "pend": 0}},
-  "Loreto": {"conteo": 68.706, "votos": {"FP": 25.937, "JP": 9.351, "RLA": 7.701, "BG": 3.608, "OBRAS": 3.399, "PPT": 7.695, "AN": 4.377}, "valid": 191230, "blanco": 64204, "nulo": 53468, "actas": {"total_actas": 2697, "cont": 1853, "jee": 843, "pend": 1}},
-  "Madre de Dios": {"conteo": 80.276, "votos": {"FP": 11.898, "JP": 27.851, "RLA": 2.815, "BG": 7.302, "OBRAS": 14.575, "PPT": 4.094, "AN": 9.101}, "valid": 49093, "blanco": 18070, "nulo": 15849, "actas": {"total_actas": 507, "cont": 407, "jee": 100, "pend": 0}},
-  "Moquegua": {"conteo": 89.619, "votos": {"FP": 5.974, "JP": 15.105, "RLA": 5.766, "BG": 11.604, "OBRAS": 0, "PPT": 3.618, "AN": 11.097}, "valid": 82859, "blanco": 18562, "nulo": 16081, "actas": {"total_actas": 578, "cont": 518, "jee": 60, "pend": 0}},
-  "Pasco": {"conteo": 86.658, "votos": {"FP": 17.450, "JP": 18.420, "RLA": 8.273, "BG": 3.810, "OBRAS": 0, "PPT": 2.145, "AN": 7.661}, "valid": 79770, "blanco": 25516, "nulo": 21067, "actas": {"total_actas": 802, "cont": 695, "jee": 107, "pend": 0}},
-  "Piura": {"conteo": 78.527, "votos": {"FP": 26.264, "JP": 11.182, "RLA": 7.650, "BG": 8.770, "OBRAS": 6.579, "PPT": 7.767, "AN": 4.781}, "valid": 561592, "blanco": 162279, "nulo": 177014, "actas": {"total_actas": 5281, "cont": 4147, "jee": 1134, "pend": 0}},
-  "Puno": {"conteo": 90.698, "votos": {"FP": 3.044, "JP": 28.248, "RLA": 1.910, "BG": 4.240, "OBRAS": 16.123, "PPT": 1.570, "AN": 13.208}, "valid": 475410, "blanco": 110478, "nulo": 110115, "actas": {"total_actas": 3397, "cont": 3081, "jee": 316, "pend": 0}},
-  "San Martín": {"conteo": 78.769, "votos": {"FP": 28.390, "JP": 0, "RLA": 9.091, "BG": 0, "OBRAS": 14.710, "PPT": 4.076, "AN": 6.544}, "valid": 186304, "blanco": 164420, "nulo": 68372, "actas": {"total_actas": 2534, "cont": 1996, "jee": 538, "pend": 0}},
-  "Tacna": {"conteo": 90.010, "votos": {"FP": 5.296, "JP": 12.200, "RLA": 5.899, "BG": 11.752, "OBRAS": 12.959, "PPT": 5.273, "AN": 11.560}, "valid": 173219, "blanco": 20933, "nulo": 29569, "actas": {"total_actas": 1041, "cont": 937, "jee": 104, "pend": 0}},
-  "Tumbes": {"conteo": 74.842, "votos": {"FP": 26.987, "JP": 7.295, "RLA": 6.657, "BG": 5.382, "OBRAS": 4.901, "PPT": 9.401, "AN": 5.312}, "valid": 64004, "blanco": 22074, "nulo": 20189, "actas": {"total_actas": 632, "cont": 473, "jee": 159, "pend": 0}},
-  "Ucayali": {"conteo": 73.402, "votos": {"FP": 34.386, "JP": 0, "RLA": 6.075, "BG": 4.920, "OBRAS": 8.320, "PPT": 7.201, "AN": 4.355}, "valid": 125480, "blanco": 56987, "nulo": 38485, "actas": {"total_actas": 1564, "cont": 1148, "jee": 416, "pend": 0}},
-  "Extranjero": {"conteo": 59.457, "votos": {"FP": 15.566, "JP": 2.788, "RLA": 25.560, "BG": 11.212, "OBRAS": 9.821, "PPT": 8.835, "AN": 7.956}, "valid": 145314, "blanco": 27388, "nulo": 57449, "actas": {"total_actas": 2543, "cont": 1512, "jee": 910, "pend": 121}}
+      "Amazonas": {"conteo": 100.00, "votos": {"FP": 25.554, "JP": 0, "RLA": 6.726, "BG": 5.318, "OBRAS": 0, "PPT": 0, "AN": 10.252}, "valid": 88993, "blanco": 97868, "nulo": 28062, "actas": {"total_actas": 1278, "cont": 1278, "jee": 0, "pend": 0}},
+      "Ancash": {"conteo": 100.00, "votos": {"FP": 15.931, "JP": 14.855, "RLA": 5.936, "BG": 7.383, "OBRAS": 8.877, "PPT": 8.958, "AN": 8.775}, "valid": 452741, "blanco": 123388, "nulo": 121412, "actas": {"total_actas": 3472, "cont": 3472, "jee": 0, "pend": 0}},
+      "Apurímac": {"conteo": 100.00, "votos": {"FP": 5.403, "JP": 38.728, "RLA": 2.479, "BG": 3.605, "OBRAS": 11.454, "PPT": 1.039, "AN": 11.107}, "valid": 180800, "blanco": 37863, "nulo": 36746, "actas": {"total_actas": 1317, "cont": 1317, "jee": 0, "pend": 0}},
+      "Arequipa": {"conteo": 100.00, "votos": {"FP": 6.071, "JP": 10.924, "RLA": 10.381, "BG": 19.937, "OBRAS": 10.238, "PPT": 7.603, "AN": 10.511}, "valid": 756232, "blanco": 102396, "nulo": 135599, "actas": {"total_actas": 4215, "cont": 4215, "jee": 0, "pend": 0}},
+      "Ayacucho": {"conteo": 100.00, "votos": {"FP": 6.785, "JP": 30.038, "RLA": 2.614, "BG": 5.557, "OBRAS": 11.842, "PPT": 1.647, "AN": 15.342}, "valid": 249447, "blanco": 51882, "nulo": 54961, "actas": {"total_actas": 1900, "cont": 1900, "jee": 0, "pend": 0}},
+      "Cajamarca": {"conteo": 100.00, "votos": {"FP": 19.456, "JP": 0, "RLA": 4.639, "BG": 7.164, "OBRAS": 15.545, "PPT": 3.902, "AN": 7.907}, "valid": 331622, "blanco": 392205, "nulo": 99949, "actas": {"total_actas": 4240, "cont": 4240, "jee": 0, "pend": 0}},
+      "Callao": {"conteo": 100.00, "votos": {"FP": 18.927, "JP": 3.302, "RLA": 15.225, "BG": 16.181, "OBRAS": 7.934, "PPT": 9.516, "AN": 7.268}, "valid": 478188, "blanco": 76933, "nulo": 117500, "actas": {"total_actas": 2898, "cont": 2898, "jee": 0, "pend": 0}},
+      "Cusco": {"conteo": 100.00, "votos": {"FP": 4.588, "JP": 22.938, "RLA": 4.053, "BG": 9.022, "OBRAS": 13.299, "PPT": 1.977, "AN": 15.742}, "valid": 593469, "blanco": 111720, "nulo": 136739, "actas": {"total_actas": 3983, "cont": 3983, "jee": 0, "pend": 0}},
+      "Huancavelica": {"conteo": 100.00, "votos": {"FP": 7.591, "JP": 53.027, "RLA": 3.083, "BG": 3.238, "OBRAS": 13.549, "PPT": 1.990, "AN": 9.249}, "valid": 128039, "blanco": 59524, "nulo": 30427, "actas": {"total_actas": 1273, "cont": 1273, "jee": 0, "pend": 0}},
+      "Huánuco": {"conteo": 100.00, "votos": {"FP": 13.284, "JP": 29.368, "RLA": 7.895, "BG": 4.217, "OBRAS": 12.208, "PPT": 5.359, "AN": 5.737}, "valid": 300065, "blanco": 70669, "nulo": 70472, "actas": {"total_actas": 2341, "cont": 2341, "jee": 0, "pend": 0}},
+      "Ica": {"conteo": 100.00, "votos": {"FP": 17.749, "JP": 8.288, "RLA": 9.173, "BG": 10.129, "OBRAS": 9.935, "PPT": 8.284, "AN": 7.340}, "valid": 408791, "blanco": 74843, "nulo": 99617, "actas": {"total_actas": 2443, "cont": 2443, "jee": 0, "pend": 0}},
+      "Junín": {"conteo": 100.00, "votos": {"FP": 14.849, "JP": 12.609, "RLA": 7.368, "BG": 8.742, "OBRAS": 10.075, "PPT": 5.451, "AN": 12.733}, "valid": 536656, "blanco": 109099, "nulo": 139875, "actas": {"total_actas": 3691, "cont": 3691, "jee": 0, "pend": 0}},
+      "La Libertad": {"conteo": 100.00, "votos": {"FP": 17.586, "JP": 9.236, "RLA": 7.183, "BG": 9.320, "OBRAS": 6.215, "PPT": 5.665, "AN": 4.314}, "valid": 829444, "blanco": 136644, "nulo": 200639, "actas": {"total_actas": 5302, "cont": 5302, "jee": 0, "pend": 0}},
+      "Lambayeque": {"conteo": 100.00, "votos": {"FP": 24.352, "JP": 10.842, "RLA": 7.781, "BG": 10.716, "OBRAS": 6.790, "PPT": 6.752, "AN": 4.599}, "valid": 559662, "blanco": 120626, "nulo": 137662, "actas": {"total_actas": 3590, "cont": 3590, "jee": 0, "pend": 0}},
+      "Lima Metropolitana": {"conteo": 99.723, "votos": {"FP": 15.785, "JP": 2.991, "RLA": 19.906, "BG": 16.455, "OBRAS": 8.494, "PPT": 6.857, "AN": 8.617}, "valid": 4641139, "blanco": 695632, "nulo": 926124, "actas": {"total_actas": 26368, "cont": 26295, "jee": 73, "pend": 0}},
+      "Lima Provincias": {"conteo": 100.00, "votos": {"FP": 21.551, "JP": 8.484, "RLA": 9.699, "BG": 9.461, "OBRAS": 10.357, "PPT": 7.128, "AN": 6.964}, "valid": 454266, "blanco": 87157, "nulo": 107278, "actas": {"total_actas": 2879, "cont": 2879, "jee": 0, "pend": 0}},
+      "Loreto": {"conteo": 100.00, "votos": {"FP": 26.114, "JP": 8.995, "RLA": 7.641, "BG": 3.608, "OBRAS": 3.405, "PPT": 7.811, "AN": 4.450}, "valid": 276301, "blanco": 95585, "nulo": 82762, "actas": {"total_actas": 2697, "cont": 2697, "jee": 0, "pend": 0}},
+      "Madre de Dios": {"conteo": 100.00, "votos": {"FP": 11.931, "JP": 28.205, "RLA": 2.849, "BG": 7.165, "OBRAS": 14.575, "PPT": 4.072, "AN": 9.053}, "valid": 60975, "blanco": 23339, "nulo": 20070, "actas": {"total_actas": 507, "cont": 507, "jee": 0, "pend": 0}},
+      "Moquegua": {"conteo": 100.00, "votos": {"FP": 5.943, "JP": 15.143, "RLA": 5.730, "BG": 11.537, "OBRAS": 11.186, "PPT": 3.586, "AN": 11.186}, "valid": 92175, "blanco": 20912, "nulo": 18238, "actas": {"total_actas": 578, "cont": 578, "jee": 0, "pend": 0}},
+      "Pasco": {"conteo": 100.00, "votos": {"FP": 17.239, "JP": 18.716, "RLA": 8.211, "BG": 3.819, "OBRAS": 0, "PPT": 2.159, "AN": 7.608}, "valid": 91745, "blanco": 29556, "nulo": 24735, "actas": {"total_actas": 802, "cont": 802, "jee": 0, "pend": 0}},
+      "Piura": {"conteo": 99.867, "votos": {"FP": 26.324, "JP": 11.317, "RLA": 7.615, "BG": 8.641, "OBRAS": 6.572, "PPT": 7.676, "AN": 4.779}, "valid": 709186, "blanco": 209173, "nulo": 227428, "actas": {"total_actas": 5281, "cont": 5274, "jee": 7, "pend": 0}},
+      "Puno": {"conteo": 100.00, "votos": {"FP": 3.052, "JP": 28.188, "RLA": 1.919, "BG": 4.234, "OBRAS": 16.080, "PPT": 1.569, "AN": 13.260}, "valid": 524711, "blanco": 123049, "nulo": 121839, "actas": {"total_actas": 3397, "cont": 3397, "jee": 0, "pend": 0}},
+      "San Martín": {"conteo": 100.00, "votos": {"FP": 28.483, "JP": 0, "RLA": 9.173, "BG": 0, "OBRAS": 14.681, "PPT": 4.082, "AN": 6.568}, "valid": 234242, "blanco": 209974, "nulo": 89111, "actas": {"total_actas": 2534, "cont": 2534, "jee": 0, "pend": 0}},
+      "Tacna": {"conteo": 100.00, "votos": {"FP": 5.324, "JP": 12.293, "RLA": 5.924, "BG": 11.660, "OBRAS": 12.903, "PPT": 5.272, "AN": 11.559}, "valid": 192533, "blanco": 23616, "nulo": 32819, "actas": {"total_actas": 1041, "cont": 1041, "jee": 0, "pend": 0}},
+      "Tumbes": {"conteo": 100.00, "votos": {"FP": 27.201, "JP": 7.258, "RLA": 6.480, "BG": 5.307, "OBRAS": 0, "PPT": 9.211, "AN": 5.379}, "valid": 84905, "blanco": 30096, "nulo": 26792, "actas": {"total_actas": 632, "cont": 632, "jee": 0, "pend": 0}},
+      "Ucayali": {"conteo": 100.00, "votos": {"FP": 34.475, "JP": 0, "RLA": 5.994, "BG": 4.872, "OBRAS": 8.297, "PPT": 7.102, "AN": 4.350}, "valid": 169556, "blanco": 78487, "nulo": 54380, "actas": {"total_actas": 1564, "cont": 1564, "jee": 0, "pend": 0}},
+      "Extranjero": {"conteo": 100.00, "votos": {"FP": 15.953, "JP": 2.833, "RLA": 24.562, "BG": 10.951, "OBRAS": 9.939, "PPT": 9.145, "AN": 7.857}, "valid": 246152, "blanco": 50139, "nulo": 115721, "actas": {"total_actas": 2543, "cont": 2543, "jee": 0, "pend": 0}}
     },
    // --- DIPUTADO REGIONAL ---
-   "diputados_data": {
-      "Amazonas": {"conteo": 81.299, "votos": {"FP": 24.696, "JP": 0, "RLA": 6.463, "BG": 5.229, "OBRAS": 0, "PPT": 2.647, "AN": 11.289}, "valid": 75293, "blanco": 76355, "nulo": 23294, "actas": {"total_actas": 1278, "cont": 1039, "jee": 239, "pend": 0}},
-  "Ancash": {"conteo": 79.666, "votos": {"FP": 15.120, "JP": 14.040, "RLA": 6.009, "BG": 6.431, "OBRAS": 8.065, "PPT": 9.622, "AN": 8.290}, "valid": 379144, "blanco": 83107, "nulo": 92764, "actas": {"total_actas": 3472, "cont": 2766, "jee": 706, "pend": 0}},
-  "Apurímac": {"conteo": 87.547, "votos": {"FP": 5.799, "JP": 39.540, "RLA": 2.594, "BG": 3.635, "OBRAS": 11.558, "PPT": 1.058, "AN": 12.026}, "valid": 152105, "blanco": 39506, "nulo": 30769, "actas": {"total_actas": 1317, "cont": 1153, "jee": 164, "pend": 0}},
-  "Arequipa": {"conteo": 90.154, "votos": {"FP": 5.467, "JP": 9.986, "RLA": 9.465, "BG": 17.756, "OBRAS": 9.253, "PPT": 7.567, "AN": 9.665}, "valid": 720585, "blanco": 63011, "nulo": 113335, "actas": {"total_actas": 4215, "cont": 3800, "jee": 415, "pend": 0}},
-  "Ayacucho": {"conteo": 88.684, "votos": {"FP": 6.536, "JP": 28.977, "RLA": 2.453, "BG": 5.283, "OBRAS": 10.984, "PPT": 1.775, "AN": 16.224}, "valid": 223974, "blanco": 43990, "nulo": 46385, "actas": {"total_actas": 1900, "cont": 1685, "jee": 215, "pend": 0}},
-  "Cajamarca": {"conteo": 78.774, "votos": {"FP": 11.666, "JP": 39.509, "RLA": 3.022, "BG": 4.223, "OBRAS": 7.918, "PPT": 2.292, "AN": 4.383}, "valid": 441409, "blanco": 113355, "nulo": 94393, "actas": {"total_actas": 4240, "cont": 3340, "jee": 900, "pend": 0}},
-  "Callao": {"conteo": 91.442, "votos": {"FP": 18.296, "JP": 3.257, "RLA": 15.008, "BG": 15.465, "OBRAS": 7.734, "PPT": 9.301, "AN": 7.435}, "valid": 442801, "blanco": 67006, "nulo": 103401, "actas": {"total_actas": 2898, "cont": 2650, "jee": 226, "pend": 22}},
-  "Cusco": {"conteo": 85.338, "votos": {"FP": 4.335, "JP": 21.937, "RLA": 4.089, "BG": 8.699, "OBRAS": 12.256, "PPT": 1.917, "AN": 15.716}, "valid": 525420, "blanco": 84690, "nulo": 108727, "actas": {"total_actas": 3983, "cont": 3399, "jee": 584, "pend": 0}},
-  "Huancavelica": {"conteo": 87.274, "votos": {"FP": 6.455, "JP": 43.639, "RLA": 3.371, "BG": 3.345, "OBRAS": 0, "PPT": 1.658, "AN": 12.181}, "valid": 126500, "blanco": 36373, "nulo": 26836, "actas": {"total_actas": 1273, "cont": 1111, "jee": 162, "pend": 0}},
-  "Huánuco": {"conteo": 78.727, "votos": {"FP": 13.050, "JP": 27.764, "RLA": 7.290, "BG": 4.202, "OBRAS": 12.006, "PPT": 6.078, "AN": 5.950}, "valid": 238298, "blanco": 54044, "nulo": 54131, "actas": {"total_actas": 2341, "cont": 1843, "jee": 495, "pend": 3}},
-  "Ica": {"conteo": 69.750, "votos": {"FP": 16.552, "JP": 7.864, "RLA": 8.866, "BG": 9.339, "OBRAS": 9.370, "PPT": 7.773, "AN": 7.215}, "valid": 295769, "blanco": 44402, "nulo": 67540, "actas": {"total_actas": 2443, "cont": 1704, "jee": 737, "pend": 2}},
-  "Junín": {"conteo": 83.988, "votos": {"FP": 13.930, "JP": 11.935, "RLA": 6.947, "BG": 8.284, "OBRAS": 9.524, "PPT": 5.477, "AN": 12.402}, "valid": 469124, "blanco": 79466, "nulo": 111844, "actas": {"total_actas": 3691, "cont": 3100, "jee": 591, "pend": 0}},
-  "La Libertad": {"conteo": 77.744, "votos": {"FP": 17.000, "JP": 9.310, "RLA": 7.331, "BG": 8.948, "OBRAS": 5.973, "PPT": 5.720, "AN": 4.333}, "valid": 656831, "blanco": 103460, "nulo": 145745, "actas": {"total_actas": 5302, "cont": 4122, "jee": 1178, "pend": 2}},
-  "Lambayeque": {"conteo": 81.393, "votos": {"FP": 23.582, "JP": 10.420, "RLA": 7.950, "BG": 10.114, "OBRAS": 6.370, "PPT": 6.418, "AN": 4.474}, "valid": 469650, "blanco": 88249, "nulo": 107487, "actas": {"total_actas": 3590, "cont": 2922, "jee": 668, "pend": 0}},
-  "Lima Metropolitana": {"conteo": 89.028, "votos": {"FP": 14.398, "JP": 2.945, "RLA": 18.463, "BG": 14.628, "OBRAS": 7.731, "PPT": 6.281, "AN": 9.165}, "valid": 4441961, "blanco": 494244, "nulo": 642496, "actas": {"total_actas": 26368, "cont": 23475, "jee": 2417, "pend": 476}},
-  "Lima Provincias": {"conteo": 84.057, "votos": {"FP": 21.269, "JP": 8.604, "RLA": 8.232, "BG": 9.019, "OBRAS": 10.111, "PPT": 6.931, "AN": 7.150}, "valid": 382593, "blanco": 68739, "nulo": 91700, "actas": {"total_actas": 2879, "cont": 2420, "jee": 458, "pend": 1}},
-  "Loreto": {"conteo": 64.998, "votos": {"FP": 24.203, "JP": 8.701, "RLA": 7.263, "BG": 2.720, "OBRAS": 2.859, "PPT": 6.575, "AN": 3.999}, "valid": 187019, "blanco": 54084, "nulo": 51295, "actas": {"total_actas": 2697, "cont": 1753, "jee": 944, "pend": 0}},
-  "Madre de Dios": {"conteo": 74.951, "votos": {"FP": 9.674, "JP": 23.533, "RLA": 2.372, "BG": 5.892, "OBRAS": 10.043, "PPT": 3.338, "AN": 8.251}, "valid": 51676, "blanco": 10426, "nulo": 15351, "actas": {"total_actas": 507, "cont": 380, "jee": 127, "pend": 0}},
-  "Moquegua": {"conteo": 87.197, "votos": {"FP": 5.487, "JP": 15.231, "RLA": 6.354, "BG": 11.432, "OBRAS": 0, "PPT": 3.459, "AN": 10.865}, "valid": 80811, "blanco": 18034, "nulo": 15390, "actas": {"total_actas": 578, "cont": 504, "jee": 74, "pend": 0}},
-  "Pasco": {"conteo": 85.162, "votos": {"FP": 19.000, "JP": 0, "RLA": 8.643, "BG": 0, "OBRAS": 8.360, "PPT": 2.375, "AN": 9.283}, "valid": 73531, "blanco": 31668, "nulo": 19490, "actas": {"total_actas": 802, "cont": 683, "jee": 119, "pend": 0}},
-  "Piura": {"conteo": 74.058, "votos": {"FP": 28.436, "JP": 0, "RLA": 7.434, "BG": 8.638, "OBRAS": 6.629, "PPT": 8.034, "AN": 5.341}, "valid": 509318, "blanco": 192549, "nulo": 150346, "actas": {"total_actas": 5281, "cont": 3911, "jee": 1370, "pend": 0}},
-  "Puno": {"conteo": 88.490, "votos": {"FP": 2.816, "JP": 25.335, "RLA": 1.873, "BG": 3.806, "OBRAS": 14.764, "PPT": 1.610, "AN": 12.275}, "valid": 508480, "blanco": 72210, "nulo": 100248, "actas": {"total_actas": 3397, "cont": 3006, "jee": 391, "pend": 0}},
-  "San Martín": {"conteo": 74.743, "votos": {"FP": 20.204, "JP": 21.927, "RLA": 7.532, "BG": 4.341, "OBRAS": 9.824, "PPT": 2.809, "AN": 4.186}, "valid": 239839, "blanco": 82781, "nulo": 76216, "actas": {"total_actas": 2534, "cont": 1894, "jee": 640, "pend": 0}},
-  "Tacna": {"conteo": 89.337, "votos": {"FP": 5.230, "JP": 12.362, "RLA": 5.803, "BG": 11.423, "OBRAS": 12.365, "PPT": 4.833, "AN": 11.058}, "valid": 174864, "blanco": 19699, "nulo": 27905, "actas": {"total_actas": 1041, "cont": 930, "jee": 111, "pend": 0}},
-  "Tumbes": {"conteo": 77.532, "votos": {"FP": 25.196, "JP": 7.255, "RLA": 10.262, "BG": 5.108, "OBRAS": 0, "PPT": 8.499, "AN": 5.139}, "valid": 66244, "blanco": 22138, "nulo": 21252, "actas": {"total_actas": 632, "cont": 490, "jee": 142, "pend": 0}},
-  "Ucayali": {"conteo": 73.529, "votos": {"FP": 27.645, "JP": 11.445, "RLA": 6.090, "BG": 4.348, "OBRAS": 7.069, "PPT": 6.379, "AN": 4.035}, "valid": 139647, "blanco": 38877, "nulo": 43078, "actas": {"total_actas": 1564, "cont": 1150, "jee": 414, "pend": 0}},
-  "Extranjero": {"conteo": 60.322, "votos": {"FP": 15.926, "JP": 0, "RLA": 26.266, "BG": 11.190, "OBRAS": 9.742, "PPT": 8.880, "AN": 8.376}, "valid": 143608, "blanco": 31270, "nulo": 57811, "actas": {"total_actas": 2543, "cont": 1534, "jee": 909, "pend": 100}}
-},  
+   diputados_data: {
+     "Amazonas": {"conteo": 100.00, "votos": {"FP": 24.422, "JP": 0, "RLA": 6.452, "BG": 5.053, "OBRAS": 0, "PPT": 2.662, "AN": 10.927}, "valid": 91590, "blanco": 94374, "nulo": 29039, "actas": {"total_actas": 1278, "cont": 1278, "jee": 0, "pend": 0}},
+     "Ancash": {"conteo": 100.00, "votos": {"FP": 15.020, "JP": 13.659, "RLA": 6.164, "BG": 6.488, "OBRAS": 7.971, "PPT": 9.703, "AN": 8.129}, "valid": 474182, "blanco": 105096, "nulo": 118227, "actas": {"total_actas": 3472, "cont": 3472, "jee": 0, "pend": 0}},
+     "Apurímac": {"conteo": 100.00, "votos": {"FP": 5.727, "JP": 39.908, "RLA": 2.604, "BG": 3.607, "OBRAS": 11.643, "PPT": 1.043, "AN": 11.945}, "valid": 173875, "blanco": 46118, "nulo": 35380, "actas": {"total_actas": 1317, "cont": 1317, "jee": 0, "pend": 0}},
+     "Arequipa": {"conteo": 100.00, "votos": {"FP": 5.462, "JP": 10.118, "RLA": 9.373, "BG": 17.652, "OBRAS": 9.297, "PPT": 7.567, "AN": 9.634}, "valid": 796542, "blanco": 71517, "nulo": 126175, "actas": {"total_actas": 4215, "cont": 4215, "jee": 0, "pend": 0}},
+     "Ayacucho": {"conteo": 100.00, "votos": {"FP": 6.550, "JP": 28.918, "RLA": 2.447, "BG": 5.273, "OBRAS": 11.020, "PPT": 1.764, "AN": 16.176}, "valid": 253212, "blanco": 50471, "nulo": 52719, "actas": {"total_actas": 1900, "cont": 1900, "jee": 0, "pend": 0}},
+     "Cajamarca": {"conteo": 100.00, "votos": {"FP": 11.550, "JP": 39.623, "RLA": 2.987, "BG": 4.125, "OBRAS": 7.898, "PPT": 2.279, "AN": 4.412}, "valid": 558420, "blanco": 145350, "nulo": 120126, "actas": {"total_actas": 4240, "cont": 4240, "jee": 0, "pend": 0}},
+     "Callao": {"conteo": 100.00, "votos": {"FP": 18.311, "JP": 3.264, "RLA": 14.984, "BG": 15.419, "OBRAS": 7.727, "PPT": 9.299, "AN": 7.437}, "valid": 479523, "blanco": 72995, "nulo": 120017, "actas": {"total_actas": 2898, "cont": 2898, "jee": 0, "pend": 0}},
+     "Cusco": {"conteo": 100.00, "votos": {"FP": 4.352, "JP": 22.155, "RLA": 4.065, "BG": 8.602, "OBRAS": 12.246, "PPT": 1.914, "AN": 15.629}, "valid": 612370, "blanco": 101586, "nulo": 128010, "actas": {"total_actas": 3983, "cont": 3983, "jee": 0, "pend": 0}},
+     "Huancavelica": {"conteo": 100.00, "votos": {"FP": 6.317, "JP": 43.898, "RLA": 3.416, "BG": 3.274, "OBRAS": 12.245, "PPT": 1.680, "AN": 12.245}, "valid": 144682, "blanco": 42203, "nulo": 31149, "actas": {"total_actas": 1273, "cont": 1273, "jee": 0, "pend": 0}},
+     "Huánuco": {"conteo": 100.00, "votos": {"FP": 13.196, "JP": 27.935, "RLA": 7.320, "BG": 4.151, "OBRAS": 11.946, "PPT": 5.977, "AN": 5.859}, "valid": 301995, "blanco": 69916, "nulo": 69041, "actas": {"total_actas": 2341, "cont": 2341, "jee": 0, "pend": 0}},
+     "Ica": {"conteo": 100.00, "votos": {"FP": 16.458, "JP": 7.896, "RLA": 8.900, "BG": 9.286, "OBRAS": 9.282, "PPT": 7.594, "AN": 7.314}, "valid": 418262, "blanco": 65169, "nulo": 99853, "actas": {"total_actas": 2443, "cont": 2443, "jee": 0, "pend": 0}},
+     "Junín": {"conteo": 100.00, "votos": {"FP": 13.957, "JP": 12.092, "RLA": 6.947, "BG": 8.230, "OBRAS": 9.499, "PPT": 5.409, "AN": 12.365}, "valid": 554940, "blanco": 96882, "nulo": 133766, "actas": {"total_actas": 3691, "cont": 3691, "jee": 0, "pend": 0}},
+     "La Libertad": {"conteo": 100.00, "votos": {"FP": 17.075, "JP": 9.142, "RLA": 7.386, "BG": 8.909, "OBRAS": 5.982, "PPT": 5.718, "AN": 4.330}, "valid": 840029, "blanco": 136562, "nulo": 189988, "actas": {"total_actas": 5302, "cont": 5302, "jee": 0, "pend": 0}},
+     "Lambayeque": {"conteo": 100.00, "votos": {"FP": 23.676, "JP": 10.600, "RLA": 7.809, "BG": 9.986, "OBRAS": 6.354, "PPT": 6.398, "AN": 4.449}, "valid": 573418, "blanco": 111911, "nulo": 132510, "actas": {"total_actas": 3590, "cont": 3590, "jee": 0, "pend": 0}},
+     "Lima Metropolitana": {"conteo": 99.708, "votos": {"FP": 14.440, "JP": 2.963, "RLA": 18.435, "BG": 14.626, "OBRAS": 7.737, "PPT": 6.280, "AN": 9.109}, "valid": 4879548, "blanco": 551654, "nulo": 830205, "actas": {"total_actas": 26368, "cont": 26291, "jee": 77, "pend": 0}},
+     "Lima Provincias": {"conteo": 100.00, "votos": {"FP": 21.310, "JP": 8.626, "RLA": 8.236, "BG": 8.912, "OBRAS": 10.078, "PPT": 6.918, "AN": 7.061}, "valid": 455023, "blanco": 84173, "nulo": 109559, "actas": {"total_actas": 2879, "cont": 2879, "jee": 0, "pend": 0}},
+     "Loreto": {"conteo": 100.00, "votos": {"FP": 24.543, "JP": 8.245, "RLA": 7.281, "BG": 2.719, "OBRAS": 2.909, "PPT": 6.753, "AN": 4.031}, "valid": 285773, "blanco": 85285, "nulo": 82984, "actas": {"total_actas": 2697, "cont": 2697, "jee": 0, "pend": 0}},
+     "Madre de Dios": {"conteo": 100.00, "votos": {"FP": 9.672, "JP": 23.672, "RLA": 2.380, "BG": 5.842, "OBRAS": 10.047, "PPT": 3.284, "AN": 8.241}, "valid": 68996, "blanco": 14707, "nulo": 20743, "actas": {"total_actas": 507, "cont": 507, "jee": 0, "pend": 0}},
+     "Moquegua": {"conteo": 100.00, "votos": {"FP": 5.427, "JP": 15.298, "RLA": 6.199, "BG": 11.291, "OBRAS": 10.966, "PPT": 3.458, "AN": 10.966}, "valid": 92788, "blanco": 20843, "nulo": 17696, "actas": {"total_actas": 578, "cont": 578, "jee": 0, "pend": 0}},
+     "Pasco": {"conteo": 100.00, "votos": {"FP": 19.053, "JP": 0, "RLA": 8.641, "BG": 0, "OBRAS": 8.440, "PPT": 2.392, "AN": 9.043}, "valid": 85258, "blanco": 37915, "nulo": 22826, "actas": {"total_actas": 802, "cont": 802, "jee": 0, "pend": 0}},
+     "Piura": {"conteo": 99.943, "votos": {"FP": 28.499, "JP": 0, "RLA": 7.370, "BG": 8.467, "OBRAS": 6.590, "PPT": 7.974, "AN": 5.327}, "valid": 679200, "blanco": 263463, "nulo": 204195, "actas": {"total_actas": 5281, "cont": 5278, "jee": 3, "pend": 0}},
+     "Puno": {"conteo": 100.00, "votos": {"FP": 2.812, "JP": 25.564, "RLA": 1.837, "BG": 3.723, "OBRAS": 14.805, "PPT": 1.596, "AN": 12.184}, "valid": 572533, "blanco": 83281, "nulo": 113772, "actas": {"total_actas": 3397, "cont": 3397, "jee": 0, "pend": 0}},
+     "San Martín": {"conteo": 100.00, "votos": {"FP": 20.268, "JP": 22.235, "RLA": 7.499, "BG": 4.194, "OBRAS": 9.888, "PPT": 2.758, "AN": 4.189}, "valid": 316517, "blanco": 113132, "nulo": 103686, "actas": {"total_actas": 2534, "cont": 2534, "jee": 0, "pend": 0}},
+     "Tacna": {"conteo": 100.00, "votos": {"FP": 5.240, "JP": 12.511, "RLA": 5.802, "BG": 11.333, "OBRAS": 12.374, "PPT": 4.789, "AN": 11.031}, "valid": 195333, "blanco": 22340, "nulo": 31296, "actas": {"total_actas": 1041, "cont": 1041, "jee": 0, "pend": 0}},
+     "Tumbes": {"conteo": 100.00, "votos": {"FP": 24.996, "JP": 7.540, "RLA": 10.349, "BG": 5.026, "OBRAS": 0, "PPT": 8.272, "AN": 5.060}, "valid": 84469, "blanco": 29656, "nulo": 27660, "actas": {"total_actas": 632, "cont": 632, "jee": 0, "pend": 0}},
+     "Ucayali": {"conteo": 100.00, "votos": {"FP": 27.636, "JP": 11.268, "RLA": 6.090, "BG": 4.279, "OBRAS": 7.047, "PPT": 6.379, "AN": 4.125}, "valid": 187722, "blanco": 54436, "nulo": 60262, "actas": {"total_actas": 1564, "cont": 1564, "jee": 0, "pend": 0}},
+     "Extranjero": {"conteo": 100.00, "votos": {"FP": 16.225, "JP": 0, "RLA": 24.845, "BG": 10.991, "OBRAS": 10.166, "PPT": 9.173, "AN": 8.247}, "valid": 241416, "blanco": 56569, "nulo": 114035, "actas": {"total_actas": 2543, "cont": 2543, "jee": 0, "pend": 0}}
+},
     // Datos de segunda vuelta (se mantienen)
     segunda:{"Amazonas": {"keiko": 34.5, "jp": 65.5, "winner": "JP", "margin": 31.0, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 67.0, "keiko_2v_21": 33.286, "castillo_2v_21": 66.714, "movilizacion": 0, "valid_votes": 112158, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 48.7, "vp_floor": 30.8, "vp_ceiling": 40.9, "obras_ppt_share": 13.1, "unc_threshold": 15.9}, "Ancash": {"keiko": 44.9, "jp": 55.1, "winner": "JP", "margin": 10.2, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 58.0, "keiko_2v_21": 41.612, "castillo_2v_21": 58.388, "movilizacion": 0, "valid_votes": 363506, "sen_escanos": 1, "dip_escanos": 5, "ganador_2021": "PL", "techo_ipsos": 48.7, "vp_floor": 43.4, "vp_ceiling": 57.4, "obras_ppt_share": 20.0, "unc_threshold": 19.3}, "Apurímac": {"keiko": 21.2, "jp": 78.8, "winner": "JP", "margin": 57.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 49.4, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 81.0, "keiko_2v_21": 18.535, "castillo_2v_21": 81.465, "movilizacion": 0, "valid_votes": 149661, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 42.3, "vp_floor": 18.4, "vp_ceiling": 24.5, "obras_ppt_share": 15.6, "unc_threshold": 17.1}, "Arequipa": {"keiko": 32.3, "jp": 67.7, "winner": "JP", "margin": 35.4, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 40.7, "techo_iep": 59.1, "techo_dat": 53.8, "techo_ipsos": 25.0, "antivoto_sanchez_band": 3.0, "anti_k_factor": 65.0, "keiko_2v_21": 35.16, "castillo_2v_21": 64.84, "movilizacion": 0, "valid_votes": 636461, "sen_escanos": 1, "dip_escanos": 6, "ganador_2021": "FP", "vp_floor": 31.0, "vp_ceiling": 40.7, "obras_ppt_share": 19.2, "unc_threshold": 18.9}, "Ayacucho": {"keiko": 24.1, "jp": 75.9, "winner": "JP", "margin": 51.8, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 49.4, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 83.0, "keiko_2v_21": 17.363, "castillo_2v_21": 82.637, "movilizacion": 0, "valid_votes": 269340, "sen_escanos": 1, "dip_escanos": 3, "ganador_2021": "PL", "techo_ipsos": 42.3, "vp_floor": 20.0, "vp_ceiling": 26.6, "obras_ppt_share": 16.8, "unc_threshold": 17.7}, "Cajamarca": {"keiko": 29.2, "jp": 70.8, "winner": "JP", "margin": 41.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 71.0, "keiko_2v_21": 28.72, "castillo_2v_21": 71.28, "movilizacion": 0, "valid_votes": 560871, "sen_escanos": 1, "dip_escanos": 6, "ganador_2021": "PL", "techo_ipsos": 48.7, "vp_floor": 25.5, "vp_ceiling": 33.9, "obras_ppt_share": 14.1, "unc_threshold": 16.4}, "Callao": {"keiko": 56.5, "jp": 43.5, "winner": "FP", "margin": 13.0, "rmse": 8.0, "uncertain": true, "capped": false, "techo_k": 66.9, "techo_iep": 63.0, "techo_dat": 71.3, "antivoto_sanchez_band": 7.0, "anti_k_factor": 33.0, "keiko_2v_21": 67.425, "castillo_2v_21": 32.575, "movilizacion": 0, "valid_votes": 550766, "sen_escanos": 1, "dip_escanos": 4, "ganador_2021": "FP", "techo_ipsos": 66.7, "vp_floor": 51.0, "vp_ceiling": 66.9, "obras_ppt_share": 20.3, "unc_threshold": 19.5}, "Cusco": {"keiko": 24.4, "jp": 75.6, "winner": "JP", "margin": 51.2, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 40.7, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 83.0, "keiko_2v_21": 16.802, "castillo_2v_21": 83.198, "movilizacion": 0, "valid_votes": 641005, "sen_escanos": 1, "dip_escanos": 5, "ganador_2021": "PL", "techo_ipsos": 25.0, "vp_floor": 19.9, "vp_ceiling": 26.4, "obras_ppt_share": 18.6, "unc_threshold": 18.6}, "Huancavelica": {"keiko": 20.4, "jp": 79.6, "winner": "JP", "margin": 59.2, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 50.6, "techo_iep": 59.1, "techo_dat": 58.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 85.0, "keiko_2v_21": 15.19, "castillo_2v_21": 84.81, "movilizacion": 0, "valid_votes": 164462, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 42.3, "vp_floor": 17.1, "vp_ceiling": 22.7, "obras_ppt_share": 15.3, "unc_threshold": 17.0}, "Huánuco": {"keiko": 36.8, "jp": 63.2, "winner": "JP", "margin": 26.4, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 50.6, "techo_iep": 59.1, "techo_dat": 58.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 68.0, "keiko_2v_21": 32.295, "castillo_2v_21": 67.705, "movilizacion": 0, "valid_votes": 307191, "sen_escanos": 1, "dip_escanos": 3, "ganador_2021": "PL", "techo_ipsos": 42.3, "vp_floor": 31.8, "vp_ceiling": 42.2, "obras_ppt_share": 19.8, "unc_threshold": 19.2}, "Ica": {"keiko": 52.4, "jp": 47.6, "winner": "FP", "margin": 4.8, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 49.4, "techo_iep": 59.1, "techo_dat": 53.8, "techo_ipsos": 42.3, "antivoto_sanchez_band": 3.0, "anti_k_factor": 48.0, "keiko_2v_21": 52.477, "castillo_2v_21": 47.523, "movilizacion": 0, "valid_votes": 357393, "sen_escanos": 1, "dip_escanos": 4, "ganador_2021": "FP", "vp_floor": 37.6, "vp_ceiling": 49.4, "obras_ppt_share": 22.3, "unc_threshold": 20.5}, "Junín": {"keiko": 44.7, "jp": 55.3, "winner": "JP", "margin": 10.6, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 50.6, "techo_iep": 59.1, "techo_dat": 58.7, "techo_ipsos": 42.3, "antivoto_sanchez_band": 3.5, "anti_k_factor": 58.0, "keiko_2v_21": 41.845, "castillo_2v_21": 58.155, "movilizacion": 0, "valid_votes": 607872, "sen_escanos": 1, "dip_escanos": 5, "ganador_2021": "PL", "vp_floor": 38.6, "vp_ceiling": 50.6, "obras_ppt_share": 18.4, "unc_threshold": 18.5}, "La Libertad": {"keiko": 53.8, "jp": 46.2, "winner": "FP", "margin": 7.6, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "techo_ipsos": 48.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 40.0, "keiko_2v_21": 60.003, "castillo_2v_21": 39.997, "movilizacion": 0, "valid_votes": 841436, "sen_escanos": 1, "dip_escanos": 7, "ganador_2021": "FP", "vp_floor": 43.7, "vp_ceiling": 57.4, "obras_ppt_share": 15.1, "unc_threshold": 16.9}, "Lambayeque": {"keiko": 56.3, "jp": 43.7, "winner": "FP", "margin": 12.6, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "techo_ipsos": 48.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 42.0, "keiko_2v_21": 58.184, "castillo_2v_21": 41.816, "movilizacion": 0, "valid_votes": 637515, "sen_escanos": 1, "dip_escanos": 5, "ganador_2021": "FP", "vp_floor": 43.7, "vp_ceiling": 57.4, "obras_ppt_share": 16.7, "unc_threshold": 17.6}, "Lima Metropolitana": {"keiko": 56.0, "jp": 44.0, "winner": "FP", "margin": 12.0, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 66.3, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 35.0, "keiko_2v_21": 64.642, "castillo_2v_21": 35.358, "movilizacion": 0, "valid_votes": 5649960, "sen_escanos": 1, "dip_escanos": 1, "ganador_2021": "?", "techo_ipsos": 66.7, "vp_floor": 50.3, "vp_ceiling": 66.3, "obras_ppt_share": 18.1, "unc_threshold": 18.4}, "Lima Provincias": {"keiko": 54.1, "jp": 45.9, "winner": "FP", "margin": 8.2, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 66.3, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 48.0, "keiko_2v_21": 52.0, "castillo_2v_21": 48.0, "movilizacion": 0, "valid_votes": 133024, "sen_escanos": 1, "dip_escanos": 1, "ganador_2021": "?", "techo_ipsos": 66.7, "vp_floor": 50.3, "vp_ceiling": 66.3, "obras_ppt_share": 17.5, "unc_threshold": 18.1}, "Loreto": {"keiko": 61.9, "jp": 38.1, "winner": "FP", "margin": 23.8, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 58.6, "techo_iep": 64.9, "techo_dat": 67.1, "techo_ipsos": 51.2, "antivoto_sanchez_band": 3.5, "anti_k_factor": 48.0, "keiko_2v_21": 51.799, "castillo_2v_21": 48.201, "movilizacion": 0, "valid_votes": 274718, "sen_escanos": 1, "dip_escanos": 4, "ganador_2021": "FP", "vp_floor": 44.6, "vp_ceiling": 58.6, "obras_ppt_share": 15.9, "unc_threshold": 17.2}, "Madre de Dios": {"keiko": 36.2, "jp": 63.8, "winner": "JP", "margin": 27.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 56.0, "techo_iep": 59.5, "techo_dat": 62.2, "antivoto_sanchez_band": 5.0, "anti_k_factor": 71.0, "keiko_2v_21": 28.94, "castillo_2v_21": 71.06, "movilizacion": 0, "valid_votes": 63286, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 51.2, "vp_floor": 27.5, "vp_ceiling": 36.6, "obras_ppt_share": 20.9, "unc_threshold": 19.8}, "Moquegua": {"keiko": 30.2, "jp": 69.8, "winner": "JP", "margin": 39.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 40.7, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 73.0, "keiko_2v_21": 26.865, "castillo_2v_21": 73.135, "movilizacion": 0, "valid_votes": 108556, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 25.0, "vp_floor": 27.0, "vp_ceiling": 35.8, "obras_ppt_share": 17.6, "unc_threshold": 18.1}, "Pasco": {"keiko": 44.7, "jp": 55.3, "winner": "JP", "margin": 10.6, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 50.6, "techo_iep": 59.1, "techo_dat": 58.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 65.0, "keiko_2v_21": 34.646, "castillo_2v_21": 65.354, "movilizacion": 0, "valid_votes": 107625, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 42.3, "vp_floor": 37.9, "vp_ceiling": 50.3, "obras_ppt_share": 16.0, "unc_threshold": 17.3}, "Piura": {"keiko": 56.7, "jp": 43.3, "winner": "FP", "margin": 13.4, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "techo_ipsos": 48.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 40.0, "keiko_2v_21": 60.051, "castillo_2v_21": 39.949, "movilizacion": 0, "valid_votes": 687373, "sen_escanos": 1, "dip_escanos": 8, "ganador_2021": "FP", "vp_floor": 43.7, "vp_ceiling": 57.4, "obras_ppt_share": 18.1, "unc_threshold": 18.4}, "Puno": {"keiko": 21.4, "jp": 78.6, "winner": "JP", "margin": 57.2, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 40.7, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 89.0, "keiko_2v_21": 10.744, "castillo_2v_21": 89.256, "movilizacion": 0, "valid_votes": 625054, "sen_escanos": 1, "dip_escanos": 5, "ganador_2021": "PL", "techo_ipsos": 25.0, "vp_floor": 16.5, "vp_ceiling": 22.0, "obras_ppt_share": 19.3, "unc_threshold": 19.0}, "San Martín": {"keiko": 47.7, "jp": 52.3, "winner": "JP", "margin": 4.6, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 58.6, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 56.0, "keiko_2v_21": 43.882, "castillo_2v_21": 56.118, "movilizacion": 0, "valid_votes": 332390, "sen_escanos": 1, "dip_escanos": 4, "ganador_2021": "FP", "techo_ipsos": 51.2, "vp_floor": 37.6, "vp_ceiling": 49.9, "obras_ppt_share": 16.5, "unc_threshold": 17.6}, "Tacna": {"keiko": 31.7, "jp": 68.3, "winner": "JP", "margin": 36.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 40.7, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 73.0, "keiko_2v_21": 27.435, "castillo_2v_21": 72.565, "movilizacion": 0, "valid_votes": 209943, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 25.0, "vp_floor": 27.0, "vp_ceiling": 35.9, "obras_ppt_share": 22.0, "unc_threshold": 20.3}, "Tumbes": {"keiko": 65.3, "jp": 34.7, "winner": "FP", "margin": 30.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "techo_ipsos": 48.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 34.0, "keiko_2v_21": 65.881, "castillo_2v_21": 34.119, "movilizacion": 0, "valid_votes": 100640, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "FP", "vp_floor": 43.7, "vp_ceiling": 57.4, "obras_ppt_share": 19.8, "unc_threshold": 19.2}, "Ucayali": {"keiko": 59.7, "jp": 40.3, "winner": "FP", "margin": 19.4, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 56.0, "techo_iep": 59.5, "techo_dat": 62.2, "techo_ipsos": 51.2, "antivoto_sanchez_band": 5.0, "anti_k_factor": 48.0, "keiko_2v_21": 51.822, "castillo_2v_21": 48.178, "movilizacion": 0, "valid_votes": 193956, "sen_escanos": 1, "dip_escanos": 3, "ganador_2021": "FP", "vp_floor": 42.7, "vp_ceiling": 56.0, "obras_ppt_share": 19.0, "unc_threshold": 18.8}, "Extranjero": {"keiko": 60.1, "jp": 39.9, "winner": "FP", "margin": 20.2, "rmse": 8.0, "uncertain": true, "capped": false, "techo_k": 58.6, "techo_iep": 63.0, "techo_dat": 71.3, "techo_ipsos": 50.0, "antivoto_sanchez_band": 7.0, "anti_k_factor": 34.0, "keiko_2v_21": 66.191, "castillo_2v_21": 33.809, "movilizacion": 0, "valid_votes": 114028, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "FP", "vp_floor": 44.6, "vp_ceiling": 58.6, "obras_ppt_share": 22.2, "unc_threshold": 20.4}},
+    r2_live: {
+    serie: [
+      {pct:91.553, margen:114.0},{pct:92.328, margen:69.4},
+      {pct:93.092, margen:27.9},{pct:93.484, margen:12.3},
+      {pct:93.623, margen:6.0},{pct:93.794, margen:2.1},
+      {pct:94.075, margen:-10.3},{pct:94.384, margen:-15.8},
+      {pct:94.847, margen:-35.1},{pct:95.685, margen:-26.5},
+      {pct:95.979, margen:-20.2}
+    ],
+    ext: [
+      ['EEUU',749,'52.6%',77.8,22.2],['España',446,'4.0%',66.2,33.8],
+      ['Argentina',299,'21.1%',58.6,41.4],['Chile',281,'11.0%',51.1,48.9],
+      ['Italia',251,'0%','—','—'],['Japón',81,'0%','—','—'],
+      ['Alemania','—','—',50.7,49.3],['Bolivia','—','—',61.2,38.8],
+      ['Colombia','—','—',73.0,27.0],['México','—','—',71.4,28.6]
+    ],
+    definicion: [
+      ['Doméstico pendiente (Cusco 225, Loreto 226, otros 12)','463','−21,900'],
+      ['Extranjero pendiente (proy. 61%K, ~240k válidos)','1,720','+52,700'],
+      ['JEE — 914 de Lima 63.5%K (si se validan)','1,547','+48,200']
+    ],
+    proyeccion: 'Proyección 100% ONPE (sin JEE): <strong>Fujimori +10,600</strong> · Con JEE Lima validado: <strong>Fujimori +58,800</strong> · Umbral de irreversibilidad: ±50,000. Margen < 30k → definición en JNE (semanas).',
+    regiones: [
+      ['Amazonas',99.7,35.6,64.4,0,4],['Áncash',98.6,43.4,56.6,0,47],
+      ['Apurímac',99.0,18.8,81.2,3,10],['Arequipa',99.2,36.4,63.6,8,25],
+      ['Ayacucho',99.2,20.7,79.3,1,15],['Cajamarca',99.3,33.2,66.8,0,30],
+      ['Callao',97.6,65.6,34.4,0,69],['Cusco',93.2,22.0,78.0,225,47],
+      ['Huancavelica',99.1,18.5,81.5,0,11],['Huánuco',99.1,35.9,64.1,0,20],
+      ['Ica',99.1,51.9,48.1,0,22],['Junín',99.1,45.1,54.9,0,32],
+      ['La Libertad',99.3,57.5,42.5,0,38],['Lambayeque',99.6,58.8,41.2,0,15],
+      ['Lima',96.8,63.5,36.5,0,924],['Loreto',90.5,54.2,45.8,226,31],
+      ['Madre de Dios',98.4,30.9,69.1,3,5],['Moquegua',99.7,27.4,72.6,0,2],
+      ['Pasco',98.3,39.2,60.8,0,14],['Piura',98.7,57.0,43.0,0,68],
+      ['Puno',99.0,13.6,86.4,9,25],['San Martín',99.4,45.4,54.6,0,14],
+      ['Tacna',98.7,28.7,71.3,0,14],['Tumbes',99.7,64.3,35.7,0,2],
+      ['Ucayali',97.2,52.5,47.5,8,36],['Extranjero',30.5,65.5,34.5,1720,48]
+    ]
+  },
     encuestas_ipsos: {
       fuente: "Ipsos", fecha: "24/04/2026",
       nacional:  {keiko_raw: 38, sanchez_raw: 38, blanco: 17, np: 7,  keiko_v: 50.0, sanchez_v: 50.0},
@@ -2011,7 +2101,9 @@ const DATA = {
   renderCards();
   // Actualizar fecha de última actualización
   if(DATA.last_update){
-    document.getElementById('update-label').textContent = `Última actualización: ${DATA.last_update.datetime} (${DATA.last_update.timezone}) — Conteo al ${DATA.last_update.conteo_pct}%`;
+    const lu = DATA.last_update;
+    const r2txt = lu.conteo_r2_pct != null ? ` · 2da Vuelta al ${lu.conteo_r2_pct}%` : '';
+    document.getElementById('update-label').textContent = `Última actualización: ${lu.datetime} (${lu.timezone}) — 1ra Vuelta al ${lu.conteo_pct}%${r2txt}`;
   }
   // ── BOTONES Y TABS ────────────────────────────────────────────────────────────
   let _conteoActive = 'resultados';
@@ -2031,6 +2123,47 @@ const DATA = {
     const ch = document.getElementById('conteo-chevron');
     if(ch) ch.style.transform = 'rotate(0deg)';
   });
+  let _r2ChartInit = false;
+  function showVuelta(n){
+    document.getElementById('vuelta-r1').style.display = n===1?'':'none';
+    document.getElementById('vuelta-r2').style.display = n===2?'':'none';
+    document.getElementById('vtab-r1').classList.toggle('active', n===1);
+    document.getElementById('vtab-r2').classList.toggle('active', n===2);
+    if(n===2 && !_r2ChartInit){ renderR2(); _r2ChartInit = true; }
+  }
+  function renderR2(){
+    if(DATA.last_update?.conteo_r2_pct != null)
+      document.getElementById('r2-pct').textContent = DATA.last_update.conteo_r2_pct + '%';
+    // tabla extranjero
+    document.getElementById('r2-ext-tbody').innerHTML = DATA.r2_live.ext.map(r=>
+      `<tr><td style="text-align:left">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td>`+
+      `<td style="color:#E8650A;font-weight:600">${typeof r[3]==='number'?r[3].toFixed(1)+'%':r[3]}</td>`+
+      `<td style="color:#4CAF50">${typeof r[4]==='number'?r[4].toFixed(1)+'%':r[4]}</td></tr>`).join('');
+    // definición
+    document.getElementById('r2-def-tbody').innerHTML = DATA.r2_live.definicion.map(r=>
+      `<tr><td style="text-align:left">${r[0]}</td><td>${r[1]}</td><td style="font-weight:600">${r[2]}</td></tr>`).join('');
+    document.getElementById('r2-proy').innerHTML = DATA.r2_live.proyeccion;
+    // regiones
+    document.getElementById('r2-reg-tbody').innerHTML = DATA.r2_live.regiones.map(r=>{
+      const lider = r[2]>r[3] ? '<span style="color:#E8650A;font-weight:700">FP</span>' : '<span style="color:#4CAF50;font-weight:700">JP</span>';
+      return `<tr><td style="text-align:left">${r[0]}</td><td>${r[1].toFixed(1)}%</td>`+
+        `<td>${r[2].toFixed(1)}%</td><td>${r[3].toFixed(1)}%</td><td>${r[4]||'—'}</td><td>${r[5]||'—'}</td><td>${lider}</td></tr>`;
+    }).join('');
+    // chart margen
+    const ctx = document.getElementById('r2-margin-chart').getContext('2d');
+    new Chart(ctx, {
+      type:'line',
+      data:{ labels: DATA.r2_live.serie.map(p=>p.pct.toFixed(1)+'%'),
+        datasets:[{ label:'Margen Keiko (miles de votos)', data: DATA.r2_live.serie.map(p=>p.margen),
+          borderColor:'#E8650A', backgroundColor:'rgba(255,140,0,.08)', fill:true, tension:.3, pointRadius:4 }]},
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>(c.parsed.y>0?'Keiko +':'Sánchez +')+Math.abs(c.parsed.y).toFixed(1)+'k'}}},
+        scales:{ y:{ title:{display:true,text:'miles de votos'}, grid:{color:'rgba(128,128,128,.15)'},
+          ticks:{callback:v=>(v>0?'+':'')+v+'k'} },
+          x:{ title:{display:true,text:'% actas contabilizadas'}, grid:{display:false} } },
+        elements:{line:{borderWidth:2}} }
+    });
+  }
   function showConteoSub(id){
     _conteoActive = id;
     const m = document.getElementById('tab-conteo-menu');
