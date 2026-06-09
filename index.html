@@ -9,7 +9,7 @@
   <body>
   <header>
     <h1>Peru 2026 — Dashboard Electoral</h1>
-    <p>Datos ONPE parciales · D'Hondt · Proyección no oficial</p>
+    <p>Datos ONPE · D'Hondt · Proyección no oficial</p>
   </header>
   <div style="background:var(--sur);border-bottom:1px solid var(--bor);padding:6px 1.5rem;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--mu)">
     <span style="width:8px;height:8px;border-radius:50%;background:#4CAF50;display:inline-block;animation:pulse 2s infinite"></span>
@@ -105,13 +105,30 @@
     </div><!-- /vuelta-r1 -->
 
     <div id="vuelta-r2" style="display:none">
-      <div class="r2-card" style="text-align:center">
+      <div class="r2-card" style="text-align:center">        
         <p class="sec" style="margin:0 0 8px;border:none;padding:0">Segunda Vuelta — Conteo ONPE al <strong id="r2-pct"></strong></p>
         <div style="display:flex;justify-content:center;gap:32px;flex-wrap:wrap">
           <div><div style="font-size:24px;font-weight:800;color:#4CAF50" id="r2-s-pct">50.057%</div><div style="font-size:11px">SÁNCHEZ (JP)</div><div style="font-size:11px;opacity:.7" id="r2-s-v">8'911,541</div></div>
           <div><div style="font-size:24px;font-weight:800;color:#E8650A" id="r2-k-pct">49.943%</div><div style="font-size:11px">FUJIMORI (FP)</div><div style="font-size:11px;opacity:.7" id="r2-k-v">8'891,320</div></div>
         </div>
         <div style="margin-top:8px;font-size:12px" id="r2-margin">Margen: Sánchez +20,221 votos (0.114pp)</div>
+      </div>
+
+      <div class="r2-card">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:.75rem;flex-wrap:wrap">
+          <p class="sec" style="margin:0;border:none;padding:0">Mapa 2da Vuelta</p>
+          <div style="display:flex;gap:4px;background:var(--sur);border:1px solid var(--bor);border-radius:4px;padding:3px">
+            <button id="r2map-yr-2026" onclick="setR2MapYear(2026)" style="background:var(--tx);color:var(--bg);border:none;border-radius:3px;padding:4px 14px;font-size:11px;cursor:pointer;font-family:Space Grotesk,sans-serif;font-weight:600">2026</button>
+            <button id="r2map-yr-2021" onclick="setR2MapYear(2021)" style="background:transparent;color:var(--mu);border:none;border-radius:3px;padding:4px 14px;font-size:11px;cursor:pointer;font-family:Space Grotesk,sans-serif">2021</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,380px) auto;gap:1.25rem;align-items:start;justify-content:start">
+          <div style="position:relative">
+            <svg viewBox="0 0 543 792" width="100%" style="max-height:500px"><g id="r2-map-g"></g></svg>
+            <div id="r2-map-tooltip" style="display:none;position:fixed;background:#18181c;border:1px solid #2a2a30;border-radius:6px;padding:10px 12px;font-size:11px;pointer-events:none;z-index:100;min-width:160px;box-shadow:0 4px 16px #0008"></div>
+          </div>
+          <div id="r2-map-legend" style="display:flex;flex-direction:column;gap:6px;background:var(--sur);border:1px solid var(--bor);border-radius:8px;padding:.75rem;min-width:200px"></div>
+        </div>
       </div>
 
       <div class="r2-card">
@@ -412,46 +429,76 @@ const DATA = {
      "Ucayali": {"conteo": 100.00, "votos": {"FP": 27.636, "JP": 11.268, "RLA": 6.090, "BG": 4.279, "OBRAS": 7.047, "PPT": 6.379, "AN": 4.125}, "valid": 187722, "blanco": 54436, "nulo": 60262, "actas": {"total_actas": 1564, "cont": 1564, "jee": 0, "pend": 0}},
      "Extranjero": {"conteo": 100.00, "votos": {"FP": 16.225, "JP": 0, "RLA": 24.845, "BG": 10.991, "OBRAS": 10.166, "PPT": 9.173, "AN": 8.247}, "valid": 241416, "blanco": 56569, "nulo": 114035, "actas": {"total_actas": 2543, "cont": 2543, "jee": 0, "pend": 0}}
 },
-    // Datos de segunda vuelta (se mantienen)
+    // Datos de segunda vuelta
     segunda:{"Amazonas": {"keiko": 34.5, "jp": 65.5, "winner": "JP", "margin": 31.0, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 67.0, "keiko_2v_21": 33.286, "castillo_2v_21": 66.714, "movilizacion": 0, "valid_votes": 112158, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 48.7, "vp_floor": 30.8, "vp_ceiling": 40.9, "obras_ppt_share": 13.1, "unc_threshold": 15.9}, "Ancash": {"keiko": 44.9, "jp": 55.1, "winner": "JP", "margin": 10.2, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 58.0, "keiko_2v_21": 41.612, "castillo_2v_21": 58.388, "movilizacion": 0, "valid_votes": 363506, "sen_escanos": 1, "dip_escanos": 5, "ganador_2021": "PL", "techo_ipsos": 48.7, "vp_floor": 43.4, "vp_ceiling": 57.4, "obras_ppt_share": 20.0, "unc_threshold": 19.3}, "Apurímac": {"keiko": 21.2, "jp": 78.8, "winner": "JP", "margin": 57.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 49.4, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 81.0, "keiko_2v_21": 18.535, "castillo_2v_21": 81.465, "movilizacion": 0, "valid_votes": 149661, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 42.3, "vp_floor": 18.4, "vp_ceiling": 24.5, "obras_ppt_share": 15.6, "unc_threshold": 17.1}, "Arequipa": {"keiko": 32.3, "jp": 67.7, "winner": "JP", "margin": 35.4, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 40.7, "techo_iep": 59.1, "techo_dat": 53.8, "techo_ipsos": 25.0, "antivoto_sanchez_band": 3.0, "anti_k_factor": 65.0, "keiko_2v_21": 35.16, "castillo_2v_21": 64.84, "movilizacion": 0, "valid_votes": 636461, "sen_escanos": 1, "dip_escanos": 6, "ganador_2021": "FP", "vp_floor": 31.0, "vp_ceiling": 40.7, "obras_ppt_share": 19.2, "unc_threshold": 18.9}, "Ayacucho": {"keiko": 24.1, "jp": 75.9, "winner": "JP", "margin": 51.8, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 49.4, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 83.0, "keiko_2v_21": 17.363, "castillo_2v_21": 82.637, "movilizacion": 0, "valid_votes": 269340, "sen_escanos": 1, "dip_escanos": 3, "ganador_2021": "PL", "techo_ipsos": 42.3, "vp_floor": 20.0, "vp_ceiling": 26.6, "obras_ppt_share": 16.8, "unc_threshold": 17.7}, "Cajamarca": {"keiko": 29.2, "jp": 70.8, "winner": "JP", "margin": 41.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 71.0, "keiko_2v_21": 28.72, "castillo_2v_21": 71.28, "movilizacion": 0, "valid_votes": 560871, "sen_escanos": 1, "dip_escanos": 6, "ganador_2021": "PL", "techo_ipsos": 48.7, "vp_floor": 25.5, "vp_ceiling": 33.9, "obras_ppt_share": 14.1, "unc_threshold": 16.4}, "Callao": {"keiko": 56.5, "jp": 43.5, "winner": "FP", "margin": 13.0, "rmse": 8.0, "uncertain": true, "capped": false, "techo_k": 66.9, "techo_iep": 63.0, "techo_dat": 71.3, "antivoto_sanchez_band": 7.0, "anti_k_factor": 33.0, "keiko_2v_21": 67.425, "castillo_2v_21": 32.575, "movilizacion": 0, "valid_votes": 550766, "sen_escanos": 1, "dip_escanos": 4, "ganador_2021": "FP", "techo_ipsos": 66.7, "vp_floor": 51.0, "vp_ceiling": 66.9, "obras_ppt_share": 20.3, "unc_threshold": 19.5}, "Cusco": {"keiko": 24.4, "jp": 75.6, "winner": "JP", "margin": 51.2, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 40.7, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 83.0, "keiko_2v_21": 16.802, "castillo_2v_21": 83.198, "movilizacion": 0, "valid_votes": 641005, "sen_escanos": 1, "dip_escanos": 5, "ganador_2021": "PL", "techo_ipsos": 25.0, "vp_floor": 19.9, "vp_ceiling": 26.4, "obras_ppt_share": 18.6, "unc_threshold": 18.6}, "Huancavelica": {"keiko": 20.4, "jp": 79.6, "winner": "JP", "margin": 59.2, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 50.6, "techo_iep": 59.1, "techo_dat": 58.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 85.0, "keiko_2v_21": 15.19, "castillo_2v_21": 84.81, "movilizacion": 0, "valid_votes": 164462, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 42.3, "vp_floor": 17.1, "vp_ceiling": 22.7, "obras_ppt_share": 15.3, "unc_threshold": 17.0}, "Huánuco": {"keiko": 36.8, "jp": 63.2, "winner": "JP", "margin": 26.4, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 50.6, "techo_iep": 59.1, "techo_dat": 58.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 68.0, "keiko_2v_21": 32.295, "castillo_2v_21": 67.705, "movilizacion": 0, "valid_votes": 307191, "sen_escanos": 1, "dip_escanos": 3, "ganador_2021": "PL", "techo_ipsos": 42.3, "vp_floor": 31.8, "vp_ceiling": 42.2, "obras_ppt_share": 19.8, "unc_threshold": 19.2}, "Ica": {"keiko": 52.4, "jp": 47.6, "winner": "FP", "margin": 4.8, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 49.4, "techo_iep": 59.1, "techo_dat": 53.8, "techo_ipsos": 42.3, "antivoto_sanchez_band": 3.0, "anti_k_factor": 48.0, "keiko_2v_21": 52.477, "castillo_2v_21": 47.523, "movilizacion": 0, "valid_votes": 357393, "sen_escanos": 1, "dip_escanos": 4, "ganador_2021": "FP", "vp_floor": 37.6, "vp_ceiling": 49.4, "obras_ppt_share": 22.3, "unc_threshold": 20.5}, "Junín": {"keiko": 44.7, "jp": 55.3, "winner": "JP", "margin": 10.6, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 50.6, "techo_iep": 59.1, "techo_dat": 58.7, "techo_ipsos": 42.3, "antivoto_sanchez_band": 3.5, "anti_k_factor": 58.0, "keiko_2v_21": 41.845, "castillo_2v_21": 58.155, "movilizacion": 0, "valid_votes": 607872, "sen_escanos": 1, "dip_escanos": 5, "ganador_2021": "PL", "vp_floor": 38.6, "vp_ceiling": 50.6, "obras_ppt_share": 18.4, "unc_threshold": 18.5}, "La Libertad": {"keiko": 53.8, "jp": 46.2, "winner": "FP", "margin": 7.6, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "techo_ipsos": 48.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 40.0, "keiko_2v_21": 60.003, "castillo_2v_21": 39.997, "movilizacion": 0, "valid_votes": 841436, "sen_escanos": 1, "dip_escanos": 7, "ganador_2021": "FP", "vp_floor": 43.7, "vp_ceiling": 57.4, "obras_ppt_share": 15.1, "unc_threshold": 16.9}, "Lambayeque": {"keiko": 56.3, "jp": 43.7, "winner": "FP", "margin": 12.6, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "techo_ipsos": 48.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 42.0, "keiko_2v_21": 58.184, "castillo_2v_21": 41.816, "movilizacion": 0, "valid_votes": 637515, "sen_escanos": 1, "dip_escanos": 5, "ganador_2021": "FP", "vp_floor": 43.7, "vp_ceiling": 57.4, "obras_ppt_share": 16.7, "unc_threshold": 17.6}, "Lima Metropolitana": {"keiko": 56.0, "jp": 44.0, "winner": "FP", "margin": 12.0, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 66.3, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 35.0, "keiko_2v_21": 64.642, "castillo_2v_21": 35.358, "movilizacion": 0, "valid_votes": 5649960, "sen_escanos": 1, "dip_escanos": 1, "ganador_2021": "?", "techo_ipsos": 66.7, "vp_floor": 50.3, "vp_ceiling": 66.3, "obras_ppt_share": 18.1, "unc_threshold": 18.4}, "Lima Provincias": {"keiko": 54.1, "jp": 45.9, "winner": "FP", "margin": 8.2, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 66.3, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 48.0, "keiko_2v_21": 52.0, "castillo_2v_21": 48.0, "movilizacion": 0, "valid_votes": 133024, "sen_escanos": 1, "dip_escanos": 1, "ganador_2021": "?", "techo_ipsos": 66.7, "vp_floor": 50.3, "vp_ceiling": 66.3, "obras_ppt_share": 17.5, "unc_threshold": 18.1}, "Loreto": {"keiko": 61.9, "jp": 38.1, "winner": "FP", "margin": 23.8, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 58.6, "techo_iep": 64.9, "techo_dat": 67.1, "techo_ipsos": 51.2, "antivoto_sanchez_band": 3.5, "anti_k_factor": 48.0, "keiko_2v_21": 51.799, "castillo_2v_21": 48.201, "movilizacion": 0, "valid_votes": 274718, "sen_escanos": 1, "dip_escanos": 4, "ganador_2021": "FP", "vp_floor": 44.6, "vp_ceiling": 58.6, "obras_ppt_share": 15.9, "unc_threshold": 17.2}, "Madre de Dios": {"keiko": 36.2, "jp": 63.8, "winner": "JP", "margin": 27.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 56.0, "techo_iep": 59.5, "techo_dat": 62.2, "antivoto_sanchez_band": 5.0, "anti_k_factor": 71.0, "keiko_2v_21": 28.94, "castillo_2v_21": 71.06, "movilizacion": 0, "valid_votes": 63286, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 51.2, "vp_floor": 27.5, "vp_ceiling": 36.6, "obras_ppt_share": 20.9, "unc_threshold": 19.8}, "Moquegua": {"keiko": 30.2, "jp": 69.8, "winner": "JP", "margin": 39.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 40.7, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 73.0, "keiko_2v_21": 26.865, "castillo_2v_21": 73.135, "movilizacion": 0, "valid_votes": 108556, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 25.0, "vp_floor": 27.0, "vp_ceiling": 35.8, "obras_ppt_share": 17.6, "unc_threshold": 18.1}, "Pasco": {"keiko": 44.7, "jp": 55.3, "winner": "JP", "margin": 10.6, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 50.6, "techo_iep": 59.1, "techo_dat": 58.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 65.0, "keiko_2v_21": 34.646, "castillo_2v_21": 65.354, "movilizacion": 0, "valid_votes": 107625, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 42.3, "vp_floor": 37.9, "vp_ceiling": 50.3, "obras_ppt_share": 16.0, "unc_threshold": 17.3}, "Piura": {"keiko": 56.7, "jp": 43.3, "winner": "FP", "margin": 13.4, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "techo_ipsos": 48.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 40.0, "keiko_2v_21": 60.051, "castillo_2v_21": 39.949, "movilizacion": 0, "valid_votes": 687373, "sen_escanos": 1, "dip_escanos": 8, "ganador_2021": "FP", "vp_floor": 43.7, "vp_ceiling": 57.4, "obras_ppt_share": 18.1, "unc_threshold": 18.4}, "Puno": {"keiko": 21.4, "jp": 78.6, "winner": "JP", "margin": 57.2, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 40.7, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 89.0, "keiko_2v_21": 10.744, "castillo_2v_21": 89.256, "movilizacion": 0, "valid_votes": 625054, "sen_escanos": 1, "dip_escanos": 5, "ganador_2021": "PL", "techo_ipsos": 25.0, "vp_floor": 16.5, "vp_ceiling": 22.0, "obras_ppt_share": 19.3, "unc_threshold": 19.0}, "San Martín": {"keiko": 47.7, "jp": 52.3, "winner": "JP", "margin": 4.6, "rmse": 6.2, "uncertain": true, "capped": false, "techo_k": 58.6, "techo_iep": 64.9, "techo_dat": 67.1, "antivoto_sanchez_band": 3.5, "anti_k_factor": 56.0, "keiko_2v_21": 43.882, "castillo_2v_21": 56.118, "movilizacion": 0, "valid_votes": 332390, "sen_escanos": 1, "dip_escanos": 4, "ganador_2021": "FP", "techo_ipsos": 51.2, "vp_floor": 37.6, "vp_ceiling": 49.9, "obras_ppt_share": 16.5, "unc_threshold": 17.6}, "Tacna": {"keiko": 31.7, "jp": 68.3, "winner": "JP", "margin": 36.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 40.7, "techo_iep": 59.1, "techo_dat": 53.8, "antivoto_sanchez_band": 3.0, "anti_k_factor": 73.0, "keiko_2v_21": 27.435, "castillo_2v_21": 72.565, "movilizacion": 0, "valid_votes": 209943, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "PL", "techo_ipsos": 25.0, "vp_floor": 27.0, "vp_ceiling": 35.9, "obras_ppt_share": 22.0, "unc_threshold": 20.3}, "Tumbes": {"keiko": 65.3, "jp": 34.7, "winner": "FP", "margin": 30.6, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 57.4, "techo_iep": 64.9, "techo_dat": 67.1, "techo_ipsos": 48.7, "antivoto_sanchez_band": 3.5, "anti_k_factor": 34.0, "keiko_2v_21": 65.881, "castillo_2v_21": 34.119, "movilizacion": 0, "valid_votes": 100640, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "FP", "vp_floor": 43.7, "vp_ceiling": 57.4, "obras_ppt_share": 19.8, "unc_threshold": 19.2}, "Ucayali": {"keiko": 59.7, "jp": 40.3, "winner": "FP", "margin": 19.4, "rmse": 6.2, "uncertain": false, "capped": false, "techo_k": 56.0, "techo_iep": 59.5, "techo_dat": 62.2, "techo_ipsos": 51.2, "antivoto_sanchez_band": 5.0, "anti_k_factor": 48.0, "keiko_2v_21": 51.822, "castillo_2v_21": 48.178, "movilizacion": 0, "valid_votes": 193956, "sen_escanos": 1, "dip_escanos": 3, "ganador_2021": "FP", "vp_floor": 42.7, "vp_ceiling": 56.0, "obras_ppt_share": 19.0, "unc_threshold": 18.8}, "Extranjero": {"keiko": 60.1, "jp": 39.9, "winner": "FP", "margin": 20.2, "rmse": 8.0, "uncertain": true, "capped": false, "techo_k": 58.6, "techo_iep": 63.0, "techo_dat": 71.3, "techo_ipsos": 50.0, "antivoto_sanchez_band": 7.0, "anti_k_factor": 34.0, "keiko_2v_21": 66.191, "castillo_2v_21": 33.809, "movilizacion": 0, "valid_votes": 114028, "sen_escanos": 1, "dip_escanos": 2, "ganador_2021": "FP", "vp_floor": 44.6, "vp_ceiling": 58.6, "obras_ppt_share": 22.2, "unc_threshold": 20.4}},
     r2_live: {
     serie: [
-      {pct:91.553, margen:114.0},{pct:92.328, margen:69.4},
-      {pct:93.092, margen:27.9},{pct:93.484, margen:12.3},
-      {pct:93.623, margen:6.0},{pct:93.794, margen:2.1},
-      {pct:94.075, margen:-10.3},{pct:94.384, margen:-15.8},
-      {pct:94.847, margen:-35.1},{pct:95.685, margen:-26.5},
-      {pct:95.979, margen:-20.2}
-    ],
-    ext: [
-      ['EEUU',749,'52.6%',77.8,22.2],['España',446,'4.0%',66.2,33.8],
-      ['Argentina',299,'21.1%',58.6,41.4],['Chile',281,'11.0%',51.1,48.9],
-      ['Italia',251,'0%','—','—'],['Japón',81,'0%','—','—'],
-      ['Alemania','—','—',50.7,49.3],['Bolivia','—','—',61.2,38.8],
-      ['Colombia','—','—',73.0,27.0],['México','—','—',71.4,28.6]
-    ],
-    definicion: [
-      ['Doméstico pendiente (Cusco 225, Loreto 226, otros 12)','463','−21,900'],
-      ['Extranjero pendiente (proy. 61%K, ~240k válidos)','1,720','+52,700'],
-      ['JEE — 914 de Lima 63.5%K (si se validan)','1,547','+48,200']
-    ],
-    proyeccion: 'Proyección 100% ONPE (sin JEE): <strong>Fujimori +10,600</strong> · Con JEE Lima validado: <strong>Fujimori +58,800</strong> · Umbral de irreversibilidad: ±50,000. Margen < 30k → definición en JNE (semanas).',
-    regiones: [
-      ['Amazonas',99.7,35.6,64.4,0,4],['Áncash',98.6,43.4,56.6,0,47],
-      ['Apurímac',99.0,18.8,81.2,3,10],['Arequipa',99.2,36.4,63.6,8,25],
-      ['Ayacucho',99.2,20.7,79.3,1,15],['Cajamarca',99.3,33.2,66.8,0,30],
-      ['Callao',97.6,65.6,34.4,0,69],['Cusco',93.2,22.0,78.0,225,47],
-      ['Huancavelica',99.1,18.5,81.5,0,11],['Huánuco',99.1,35.9,64.1,0,20],
-      ['Ica',99.1,51.9,48.1,0,22],['Junín',99.1,45.1,54.9,0,32],
-      ['La Libertad',99.3,57.5,42.5,0,38],['Lambayeque',99.6,58.8,41.2,0,15],
-      ['Lima',96.8,63.5,36.5,0,924],['Loreto',90.5,54.2,45.8,226,31],
-      ['Madre de Dios',98.4,30.9,69.1,3,5],['Moquegua',99.7,27.4,72.6,0,2],
-      ['Pasco',98.3,39.2,60.8,0,14],['Piura',98.7,57.0,43.0,0,68],
-      ['Puno',99.0,13.6,86.4,9,25],['San Martín',99.4,45.4,54.6,0,14],
-      ['Tacna',98.7,28.7,71.3,0,14],['Tumbes',99.7,64.3,35.7,0,2],
-      ['Ucayali',97.2,52.5,47.5,8,36],['Extranjero',30.5,65.5,34.5,1720,48]
-    ]
-  },
+        {pct:91.553, k:8546800, s:8432800, est:true},
+        {pct:92.328, k:8721496, s:8652055},
+        {pct:93.092, k:8752752, s:8724815},
+        {pct:93.484, k:8769222, s:8756887},
+        {pct:93.623, k:8774838, s:8768838},
+        {pct:93.794, k:8781831, s:8779774},
+        {pct:94.075, k:8793466, s:8803745},
+        {pct:94.384, k:8809564, s:8825325},
+        {pct:94.847, k:8825533, s:8860682},
+        {pct:95.685, k:8874597, s:8901069},
+        {pct:95.979, k:8891320, s:8911541},
+        {pct:96.273, k:8943863, s:8901653}
+      ],
+      ext: {
+      "EEUU":       {tot: 749, contp: 53.004,   jee: 20, pend: 332,   kp: 77.734, kv: 25761, sp: 22.266, sv: 7379, vpa: 44},
+      "Argentina":  {tot: 299, contp: 21.070,   jee: 3,  pend: 233,   kp: 58.620, kv: 6811,  sp: 41.380, sv: 4808, vpa: 39},
+      "Bolivia":    {tot: 22,  contp: 95.455,   jee: 1,  pend: 0,     kp: 61.196, kv: 2834,  sp: 38.804, sv: 1797, vpa: 211},
+      "España":     {tot: 446, contp: 4.036,    jee: 0,  pend: 428,   kp: 66.174, kv: 1387,  sp: 33.826, sv: 709,  vpa: 5},
+      "Chile":      {tot: 281, contp: 11.032,   jee: 4,  pend: 246,   kp: 51.068, kv: 4160,  sp: 48.932, sv: 3986, vpa: 29},
+      "Colombia":   {tot: 17,  contp: 100.000,  jee: 0,  pend: 0,     kp: 72.970, kv: 1528,  sp: 27.030, sv: 566,  vpa: 123},
+      "México":     {tot: 14,  contp: 100.000,  jee: 0,  pend: 0,     kp: 71.429, kv: 1005,  sp: 28.571, sv: 402,  vpa: 101},
+      "Alemania":   {tot: 29,  contp: 48.276,   jee: 5,  pend: 10,    kp: 50.717, kv: 919,   sp: 49.283, sv: 893,  vpa: 130},
+      "Italia":     {tot: 0,   contp: 0,        jee: 0,  pend: 0,     kp: 0,      kv: 0,     sp:0,       sv:0,     vpa:0},
+      "Japón":      {tot: 0,   contp: 0,        jee: 0,  pend: 0,     kp: 0,      kv: 0,     sp:0,       sv:0,     vpa:0},  
+    }
+    // tot=actas totales, contp=% contado, jee, pend, kp=%Fujimori, sp=%Sánchez, vpa=votos válidos/acta
+    regiones: {
+        'Amazonas':     {tot:1278,   contp:99.687, jee:4,   pend:0,     kp:35.551, kv:69084,    sp:64.449, sv:125241,   vpa:153},
+        'Áncash':       {tot:3472,   contp:98.704, jee:47,  pend:0,     kp:43.400, kv:267471,   sp:56.600, sv:348825,   vpa:185},
+        'Apurímac':     {tot:1317,   contp:99.241, jee:10,  pend:0,     kp:18.838, kv:43132,    sp:81.162, sv:185825,   vpa:185},
+        'Arequipa':     {tot:4215,   contp:99.407, jee:25,  pend:0,     kp:36.403, kv:332308,   sp:63.597, sv:580551,   vpa:185},
+        'Ayacucho':     {tot:1900,   contp:99.211, jee:15,  pend:0,     kp:20.683, kv:66849,    sp:79.317, sv:256362,   vpa:172},
+        'Cajamarca':    {tot:4240,   contp:99.269, jee:31,  pend:0,     kp:33.240, kv:244266,   sp:66.760, sv:490590,   vpa:185},
+        'Callao':       {tot:2898,   contp:97.619, jee:69,  pend:0,     kp:65.606, kv:394407,   sp:34.394, sv:206765,   vpa:185},
+        'Cusco':        {tot:3983,   contp:97.665, jee:52,  pend:41,    kp:21.846, kv:163777,   sp:78.154, sv:585901,   vpa:194},
+        "Huancavelica": {tot:1273,   contp:99.136, jee:11,  pend:0,     kp:18.598, kv: 36707,   sp:81.402, sv: 160659,  vpa: 155},
+        "Huánuco":      {tot:2341,   contp:99.146, jee:20,  pend:0,     kp:35.860, kv: 139754,  sp:64.140, sv: 249970,  vpa: 166},
+        "Ica":          {tot:2443,   contp:99.099, jee:22,  pend:0,     kp:51.911, kv: 279728,  sp:48.089, sv: 259131,  vpa: 221},
+        "Junín":        {tot:3691,   contp:99.133, jee:32,  pend:0,     kp:45.069, kv: 321180,  sp:54.931, sv: 391453,  vpa: 193},
+        "La Libertad":  {tot:5302,   contp:99.321, jee:36,  pend:0,     kp:57.525, kv: 599810,  sp:42.475, sv: 442887,  vpa: 197},
+        "Lambayeque":   {tot:3590,   contp:99.638, jee:13,  pend:0,     kp:58.848, kv: 435721,  sp:41.152, sv: 304695,  vpa: 206},
+        "Lima":         {tot:29247,  contp:96.871, jee:915, pend:0,     kp:63.499, kv: 3944393, sp:36.501, sv: 2267307, vpa: 212},
+        "Loreto":       {tot:2697,   contp:92.844, jee:32,  pend:161,   kp:53.850, kv: 206735,  sp:46.150, sv: 177172,  vpa: 142},
+        "Madre de Dios":{tot:507,    contp:99.014, jee:5,   pend:0,     kp:30.794, kv: 29115,   sp:69.206, sv: 65432,   vpa: 186},
+        "Moquegua":     {tot:578,    contp:99.654, jee:2,   pend:0,     kp:27.431, kv: 33353,   sp:72.569, sv: 88235,   vpa: 210},
+        "Pasco":        {tot:802,    contp:98.254, jee:14,  pend:0,     kp:39.236, kv: 50699,   sp:60.764, sv: 78518,   vpa: 161},
+        "Piura":        {tot:5281,   contp:98.788, jee:64,  pend:0,     kp:56.959, kv: 582216,  sp:43.041, sv: 439958,  vpa: 194},
+        "Puno":         {tot:3397,   contp:99.293, jee:24,  pend:0,     kp:13.578, kv: 95674,   sp:86.422, sv: 608930,  vpa: 207},
+        "San Martín":   {tot:2534,   contp:99.448, jee:14,  pend:0,     kp:45.376, kv: 218127,  sp:54.624, sv: 262583,  vpa: 190},
+        "Tacna":        {tot:1041,   contp:98.751, jee:13,  pend:0,     kp:28.635, kv: 65417,   sp:71.365, sv: 163032,  vpa: 219},
+        "Tumbes":       {tot:632,    contp:99.684, jee:2,   pend:0,     kp:64.339, kv: 81960,   sp:35.661, sv: 45427,   vpa: 202},
+        "Ucayali":      {tot:1564,   contp:97.187, jee:36,  pend:8,     kp:52.545, kv: 139606,  sp:47.455, sv: 126082,  vpa: 170},
+        "Extranjero":   {tot:2543,   contp:31.538, jee:46,  pend:1695,  kp:65.045, kv: 60164,   sp:34.955, sv: 32332,   vpa: 36}
+      },
+  r2_2021: {
+        "Amazonas":[121162,60451],"Ancash":[347457,247628],"Apurímac":[174344,39666],
+        "Arequipa":[558085,302622],"Ayacucho":[266824,56061],"Cajamarca":[509790,205403],
+        "Callao":[198503,410860],"Cusco":[610521,123295],"Huancavelica":[166279,29782],
+        "Huánuco":[255556,121899],"Ica":[233316,257640],"Junín":[396598,285375],
+        "La Libertad":[392224,588417],"Lambayeque":[289784,403216],
+        "Lima Metropolitana":[2195770,4014342],"Lima Provincias":[2195770,4014342],
+        "Loreto":[193765,208232],"Madre de Dios":[57387,23372],"Moquegua":[80520,29578],
+        "Pasco":[82851,43922],"Piura":[388901,584584],"Puno":[645813,77739],
+        "San Martín":[241491,188834],"Tacna":[154223,58307],"Tumbes":[41464,80064],
+        "Ucayali":[121081,130240],"Extranjero":[112671,220588]
+      },
     encuestas_ipsos: {
       fuente: "Ipsos", fecha: "24/04/2026",
       nacional:  {keiko_raw: 38, sanchez_raw: 38, blanco: 17, np: 7,  keiko_v: 50.0, sanchez_v: 50.0},
@@ -2124,40 +2171,192 @@ const DATA = {
     if(ch) ch.style.transform = 'rotate(0deg)';
   });
   let _r2ChartInit = false;
+  const R2_NAME_MAP = {'Lima':'Lima Metropolitana','Áncash':'Ancash'};
+  let _r2MapYear = 2026;
+  function setR2MapYear(yr){
+    _r2MapYear = yr;
+    const b26=document.getElementById('r2map-yr-2026'), b21=document.getElementById('r2map-yr-2021');
+    [[b26,2026],[b21,2021]].forEach(([b,y])=>{
+      if(!b) return;
+      b.style.background = yr===y ? 'var(--tx)' : 'transparent';
+      b.style.color = yr===y ? 'var(--bg)' : 'var(--mu)';
+    });
+    initR2Map();
+  }
+  function initR2Map(){
+    const g = document.getElementById('r2-map-g');
+    const tooltip = document.getElementById('r2-map-tooltip');
+    const legend = document.getElementById('r2-map-legend');
+    if(!g) return;
+    g.innerHTML = ''; legend.innerHTML = '';
+    // lookup 2026 por nombre de región del SVG
+    const lk2026 = {};
+    Object.entries(DATA.r2_live.regiones).forEach(([n,r])=>{
+      const svgName = R2_NAME_MAP[n] || n;
+      lk2026[svgName] = r;
+      if(n==='Lima') lk2026['Lima Provincias'] = r; // aprox
+    });
+    const C_CAS='#D32F2F', C_K='#E8650A', C_S='#4CAF50';
+    let winsA=0, winsB=0;
+    document.querySelectorAll('#map-regions .peru-region[data-region]').forEach(src=>{
+      const rname = src.getAttribute('data-region');
+      const p = src.cloneNode(false);
+      p.removeAttribute('id');
+      let fill='#2a2a30', op=0.6, tip='';
+      if(_r2MapYear===2026){
+        const d = lk2026[rname];
+        if(d){
+          const kWins = d.kp > d.sp;
+          fill = kWins ? C_K : C_S;
+          const margin = Math.abs(d.kp-d.sp);
+          op = Math.min(1, Math.max(0.45, 0.45 + margin*0.012));
+          if(kWins) winsA++; else winsB++;
+          tip = `<div style="font-weight:600;margin-bottom:4px">${rname}</div>
+            <div style="color:var(--mu);font-size:10px;margin-bottom:4px">Contado: ${d.contp.toFixed(1)}%${d.pend?` · Pend: ${d.pend}`:''}${d.jee?` · JEE: ${d.jee}`:''}</div>
+            <div style="color:${C_K}">Fujimori ${d.kp.toFixed(1)}%</div>
+            <div style="color:${C_S}">Sánchez ${d.sp.toFixed(1)}%</div>`;
+        }
+      } else {
+        const d = DATA.r2_live.r2_2021[rname];
+        if(d){
+          const [cas,kei]=d, tot=cas+kei;
+          const casWins = cas>kei;
+          fill = casWins ? C_CAS : C_K;
+          const margin = Math.abs(cas-kei)/tot*100;
+          op = Math.min(1, Math.max(0.45, 0.45 + margin*0.012));
+          if(casWins) winsA++; else winsB++;
+          tip = `<div style="font-weight:600;margin-bottom:4px">${rname} — R2 2021</div>
+            <div style="color:${C_CAS}">Castillo ${cas.toLocaleString('es-PE')} (${(cas/tot*100).toFixed(1)}%)</div>
+            <div style="color:${C_K}">Fujimori ${kei.toLocaleString('es-PE')} (${(kei/tot*100).toFixed(1)}%)</div>`;
+        }
+      }
+      p.setAttribute('fill', fill);
+      p.setAttribute('fill-opacity', op.toFixed(2));
+      p.setAttribute('stroke','#111'); p.setAttribute('stroke-width','0.8');
+      p.addEventListener('mouseenter', e=>{
+        p.setAttribute('fill-opacity','1');
+        if(tip){ tooltip.innerHTML=tip; tooltip.style.display='block';
+          tooltip.style.left=(e.clientX+14)+'px'; tooltip.style.top=(e.clientY-10)+'px'; }
+      });
+      p.addEventListener('mousemove', e=>{
+        tooltip.style.left=(e.clientX+14)+'px'; tooltip.style.top=(e.clientY-10)+'px';
+      });
+      p.addEventListener('mouseleave', ()=>{
+        p.setAttribute('fill-opacity', op.toFixed(2));
+        tooltip.style.display='none';
+      });
+      g.appendChild(p);
+    });
+    // leyenda
+    const items = _r2MapYear===2026
+      ? [['#E8650A','Fujimori (FP)',winsA],['#4CAF50','Sánchez (JP)',winsB]]
+      : [['#D32F2F','Castillo (PL)',winsA],['#E8650A','Fujimori (FP)',winsB]];
+    legend.innerHTML = items.map(([c,l,n])=>
+      `<div style="display:flex;align-items:center;gap:8px;font-size:11px">
+        <span style="width:12px;height:12px;border-radius:2px;background:${c};display:inline-block"></span>
+        <span>${l}</span><span style="color:var(--mu);margin-left:auto">${n} reg.</span></div>`).join('')
+      + `<div style="font-size:9px;color:var(--mu);margin-top:6px">Intensidad = margen de victoria.${_r2MapYear===2026?' Lima Provincias usa dato de Lima (aprox).':''}</div>`;
+  }
   function showVuelta(n){
     document.getElementById('vuelta-r1').style.display = n===1?'':'none';
     document.getElementById('vuelta-r2').style.display = n===2?'':'none';
     document.getElementById('vtab-r1').classList.toggle('active', n===1);
     document.getElementById('vtab-r2').classList.toggle('active', n===2);
-    if(n===2 && !_r2ChartInit){ renderR2(); _r2ChartInit = true; }
+    if(n===2 && !_r2ChartInit){ renderR2(); initR2Map(); _r2ChartInit = true; }
   }
   function renderR2(){
+    // ── % contado en el header ──
     if(DATA.last_update?.conteo_r2_pct != null)
       document.getElementById('r2-pct').textContent = DATA.last_update.conteo_r2_pct + '%';
-    // tabla extranjero
-    document.getElementById('r2-ext-tbody').innerHTML = DATA.r2_live.ext.map(r=>
-      `<tr><td style="text-align:left">${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td>`+
-      `<td style="color:#E8650A;font-weight:600">${typeof r[3]==='number'?r[3].toFixed(1)+'%':r[3]}</td>`+
-      `<td style="color:#4CAF50">${typeof r[4]==='number'?r[4].toFixed(1)+'%':r[4]}</td></tr>`).join('');
-    // definición
-    document.getElementById('r2-def-tbody').innerHTML = DATA.r2_live.definicion.map(r=>
-      `<tr><td style="text-align:left">${r[0]}</td><td>${r[1]}</td><td style="font-weight:600">${r[2]}</td></tr>`).join('');
-    document.getElementById('r2-proy').innerHTML = DATA.r2_live.proyeccion;
-    // regiones
-    document.getElementById('r2-reg-tbody').innerHTML = DATA.r2_live.regiones.map(r=>{
-      const lider = r[2]>r[3] ? '<span style="color:#E8650A;font-weight:700">FP</span>' : '<span style="color:#4CAF50;font-weight:700">JP</span>';
-      return `<tr><td style="text-align:left">${r[0]}</td><td>${r[1].toFixed(1)}%</td>`+
-        `<td>${r[2].toFixed(1)}%</td><td>${r[3].toFixed(1)}%</td><td>${r[4]||'—'}</td><td>${r[5]||'—'}</td><td>${lider}</td></tr>`;
+
+    // ── Header nacional desde el último punto de la serie ──
+    const last = DATA.r2_live.serie[DATA.r2_live.serie.length-1];
+    const tot = last.k + last.s, mg = last.s - last.k;
+    document.getElementById('r2-k-pct').textContent = (last.k/tot*100).toFixed(3)+'%';
+    document.getElementById('r2-s-pct').textContent = (last.s/tot*100).toFixed(3)+'%';
+    document.getElementById('r2-k-v').textContent = last.k.toLocaleString('es-PE');
+    document.getElementById('r2-s-v').textContent = last.s.toLocaleString('es-PE');
+    document.getElementById('r2-margin').textContent = mg>=0
+      ? `Margen: Sánchez +${mg.toLocaleString('es-PE')} votos (${(mg/tot*100).toFixed(3)}pp)`
+      : `Margen: Fujimori +${Math.abs(mg).toLocaleString('es-PE')} votos (${(Math.abs(mg)/tot*100).toFixed(3)}pp)`;
+
+    // ── Tabla extranjero por país (objeto → tabla) ──
+    const extObj = DATA.r2_live.ext;
+    const extRows = Object.entries(extObj).map(([pais, data]) => {
+      return `<tr><td style="text-align:left">${pais}</td>
+              <td>${data.tot}</td>
+              <td>${data.contp.toFixed(1)}%</td>
+              <td style="color:#E8650A;font-weight:600">${data.kp.toFixed(1)}%</td>
+              <td style="color:#4CAF50">${data.sp.toFixed(1)}%</td>
+            </tr>`;
     }).join('');
-    // chart margen
+    document.getElementById('r2-ext-tbody').innerHTML = extRows;
+    
+    // ── Definición: calculada desde regiones (vpa automático) ──
+    const R = DATA.r2_live.regiones;
+    let domNet = 0, domActas = 0, jeeNet = 0, jeeActas = 0, domDetail = [];
+    
+    Object.entries(R).forEach(([n, r]) => {
+      // Votos por acta a partir de datos contabilizados
+      const actasCont = Math.round(r.tot * r.contp / 100);
+      const vpa = actasCont > 0 ? (r.kv + r.sv) / actasCont : 0;
+      const split = (r.kp - r.sp) / 100;
+    
+      jeeNet += r.jee * vpa * split;
+      jeeActas += r.jee;
+    
+      if (n === 'Extranjero') return; // lo tratamos aparte
+    
+      if (r.pend > 0) {
+        domNet += r.pend * vpa * split;
+        domActas += r.pend;
+        if (r.pend >= 20) domDetail.push(`${n} ${r.pend}`);
+      }
+    });
+    
+    // Extranjero con su propio vpa calculado
+    const ext = R['Extranjero'];
+    const extActasCont = Math.round(ext.tot * ext.contp / 100);
+    const extVpa = extActasCont > 0 ? (ext.kv + ext.sv) / extActasCont : 0;
+    const extSplit = (ext.kp - ext.sp) / 100;
+    const extNet = ext.pend * extVpa * extSplit;
+    
+    const fmt = v => (v >= 0 ? '+' : '−') + Math.abs(Math.round(v)).toLocaleString('es-PE');
+    
+    document.getElementById('r2-def-tbody').innerHTML = [
+      [`Doméstico pendiente (${domDetail.join(', ') || 'menores'})`, domActas, fmt(domNet)],
+      [`Extranjero pendiente (kp ${ext.kp.toFixed(1)}%, vpa ${Math.round(extVpa)} v/acta)`, ext.pend, fmt(extNet)],
+      [`JEE — ${R['Lima'].jee} de Lima ${R['Lima'].kp.toFixed(1)}%K (si se validan)`, jeeActas.toLocaleString('es-PE'), fmt(jeeNet)]
+    ].map(r => `<tr><td style="text-align:left">${r[0]}</td><td>${r[1]}</td><td style="font-weight:600">${r[2]}</td></tr>`).join('');
+
+    // ── Proyección final: automática desde margen actual + netos ──
+    const curMargin = last.k - last.s; // neto Keiko actual (negativo = Sánchez arriba)
+    const finSin = curMargin + domNet + extNet;
+    const finCon = finSin + jeeNet;
+    const who = v => v>=0 ? 'Fujimori' : 'Sánchez';
+    const fmtAbs = v => '+' + Math.abs(Math.round(v)).toLocaleString('es-PE');
+    document.getElementById('r2-proy').innerHTML =
+      `Proyección 100% ONPE (sin JEE): <strong>${who(finSin)} ${fmtAbs(finSin)}</strong> · `+
+      `Con JEE validado: <strong>${who(finCon)} ${fmtAbs(finCon)}</strong> · `+
+      `Umbral de irreversibilidad: ±50,000. Margen &lt; 30k → definición en JNE (semanas).`;
+
+    // ── Tabla regional ──
+    document.getElementById('r2-reg-tbody').innerHTML = Object.entries(R).map(([n,r])=>{
+      const lider = r.kp>r.sp ? '<span style="color:#E8650A;font-weight:700">FP</span>' : '<span style="color:#4CAF50;font-weight:700">JP</span>';
+      return `<tr><td style="text-align:left">${n}</td><td>${r.contp.toFixed(1)}%</td>`+
+        `<td>${r.kp.toFixed(1)}%</td><td>${r.sp.toFixed(1)}%</td><td>${r.pend||'—'}</td><td>${r.jee||'—'}</td><td>${lider}</td></tr>`;
+    }).join('');
+
+    // ── Chart de margen: calculado desde votos ──
+    const margenes = DATA.r2_live.serie.map(p => (p.k - p.s) / 1000);
     const ctx = document.getElementById('r2-margin-chart').getContext('2d');
     new Chart(ctx, {
       type:'line',
       data:{ labels: DATA.r2_live.serie.map(p=>p.pct.toFixed(1)+'%'),
-        datasets:[{ label:'Margen Keiko (miles de votos)', data: DATA.r2_live.serie.map(p=>p.margen),
-          borderColor:'#E8650A', backgroundColor:'rgba(255,140,0,.08)', fill:true, tension:.3, pointRadius:4 }]},
+        datasets:[{ label:'Margen Keiko (miles de votos)', data: margenes,
+          borderColor:'#E8650A', backgroundColor:'rgba(232,101,10,.08)', fill:true, tension:.3, pointRadius:4 }]},
       options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>(c.parsed.y>0?'Keiko +':'Sánchez +')+Math.abs(c.parsed.y).toFixed(1)+'k'}}},
+        plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c=>(c.parsed.y>0?'Keiko +':'Sánchez +')+Math.abs(c.parsed.y*1000).toLocaleString('es-PE',{maximumFractionDigits:0})+' votos'}}},
         scales:{ y:{ title:{display:true,text:'miles de votos'}, grid:{color:'rgba(128,128,128,.15)'},
           ticks:{callback:v=>(v>0?'+':'')+v+'k'} },
           x:{ title:{display:true,text:'% actas contabilizadas'}, grid:{display:false} } },
