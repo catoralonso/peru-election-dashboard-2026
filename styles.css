@@ -124,6 +124,12 @@ header p {
   border-left: 3px solid transparent;
 }
 
+.vuelta-tabs{display:flex;gap:6px;margin-bottom:1rem}
+.vuelta-tab{padding:6px 16px;border:1px solid var(--bor);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;opacity:.6;background:var(--sur)}
+.vuelta-tab.active{opacity:1;border-color:#4CAF50;color:#4CAF50}
+.r2-card{background:var(--sur);border:1px solid var(--bor);border-radius:6px;padding:12px;margin-bottom:12px}
+.r2-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+
 .tab-dropdown-menu .conteo-sub:last-child {
   border-bottom: none;
 }
