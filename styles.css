@@ -124,9 +124,10 @@ header p {
   border-left: 3px solid transparent;
 }
 
-.vuelta-tabs{display:flex;gap:6px;margin-bottom:1rem}
-.vuelta-tab{padding:6px 16px;border:1px solid var(--bor);border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;opacity:.6;background:var(--sur)}
-.vuelta-tab.active{opacity:1;border-color:#4CAF50;color:#4CAF50}
+.vuelta-tabs{display:flex;gap:6px;margin-bottom:1.2rem;background:var(--sur);border:1px solid var(--bor);border-radius:8px;padding:5px;width:fit-content}
+.vuelta-tab{padding:10px 26px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;color:var(--mu);font-family:Space Grotesk,sans-serif;text-transform:uppercase;letter-spacing:.04em;transition:all .15s;border:none}
+.vuelta-tab:hover{color:var(--tx)}
+.vuelta-tab.active{background:var(--tx);color:var(--bg);opacity:1}
 .r2-card{background:var(--sur);border:1px solid var(--bor);border-radius:6px;padding:12px;margin-bottom:12px}
 .r2-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
 
