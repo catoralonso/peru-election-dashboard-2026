@@ -534,6 +534,7 @@ const DATA = {
                          AN:  {k:0.06, s:0.74, n:0.20, note:"Frente Ciudadano (Chau)"}
         }
       }
+    }  
   };        
   // CONSTANTES GLOBALES
   const PARTIES = ["FP","JP","RLA","BG","OBRAS","PPT","AN"];
@@ -2255,7 +2256,7 @@ const DATA = {
       `<div style="display:flex;align-items:center;gap:8px;font-size:11px">
         <span style="width:12px;height:12px;border-radius:2px;background:${c};display:inline-block"></span>
         <span>${l}</span><span style="color:var(--mu);margin-left:auto">${n} reg.</span></div>`).join('')
-      + `<div style="font-size:9px;color:var(--mu);margin-top:6px">Intensidad = margen de victoria.${_r2MapYear === 2026 ? '' : ''}</div>`
+      + `<div style="font-size:9px;color:var(--mu);margin-top:6px">Intensidad = margen de victoria.</div>`
   }
   function showVuelta(n){
     document.getElementById('vuelta-r1').style.display = n===1?'':'none';
