@@ -2213,10 +2213,21 @@ const DATA = {
           const margin = Math.abs(d.kp-d.sp);
           op = Math.min(1, Math.max(0.45, 0.45 + margin*0.012));
           if(kWins) winsA++; else winsB++;
+          const mgVotos = Math.abs(d.kv - d.sv);
+          const mgWho = d.kp > d.sp ? 'Keiko' : 'Sánchez';
           tip = `<div style="font-weight:600;margin-bottom:4px">${rname}</div>
-            <div style="color:var(--mu);font-size:10px;margin-bottom:4px">Contado: ${d.contp.toFixed(1)}%${d.pend?` · Pend: ${d.pend}`:''}${d.jee?` · JEE: ${d.jee}`:''}</div>
-            <div style="color:${C_K}">Fujimori ${d.kp.toFixed(1)}%</div>
-            <div style="color:${C_S}">Sánchez ${d.sp.toFixed(1)}%</div>`;
+            <div style="color:var(--mu);font-size:10px;margin-bottom:6px">Contado: ${d.contp.toFixed(1)}%${d.pend?` · Pend: ${d.pend} actas`:''}${d.jee?` · JEE: ${d.jee}`:''}</div>
+            <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:3px">
+              <span style="color:${C_K}">Fujimori ${d.kp.toFixed(1)}%</span>
+              <span style="color:${C_K};font-family:DM Mono,monospace">${d.kv.toLocaleString('es-PE')}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:6px">
+              <span style="color:${C_S}">Sánchez ${d.sp.toFixed(1)}%</span>
+              <span style="color:${C_S};font-family:DM Mono,monospace">${d.sv.toLocaleString('es-PE')}</span>
+            </div>
+            <div style="font-size:10px;color:var(--mu);border-top:1px solid #2a2a30;padding-top:5px">
+              Margen: <span style="color:${d.kp>d.sp?C_K:C_S};font-weight:600">${mgWho} +${mgVotos.toLocaleString('es-PE')}</span>
+            </div>`;
         }
       } else {
         const d = DATA.r2_live.r2_2021[rname];
