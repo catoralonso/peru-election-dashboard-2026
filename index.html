@@ -141,7 +141,7 @@
         <div class="r2-card">
           <p class="sec" style="margin:0 0 8px;border:none;padding:0">🌎 Voto Extranjero por país (<span id="r2-ext-pct"></span> contado)</p>
           <table style="width:100%;font-size:11px">
-            <tr><th style="text-align:left">País</th><th>Actas</th><th>%cont</th><th>K%</th><th>Votos K</th><th>S%</th><th>Votos S</th><th>Pend. votos</th></tr>
+            <tr><th style="text-align:left">País</th><th>Actas tot.</th><th>Cont.</th><th>Pend. actas</th><th>JEE</th><th>K%</th><th>Votos K</th><th>S%</th><th>Votos S</th><th>~Pend. votos</th></tr>
             <tbody id="r2-ext-tbody"></tbody>
           </table>
           <p class="note" style="margin-top:6px" id="r2-ext-note"></p>
@@ -159,7 +159,7 @@
       <div class="r2-card">
         <p class="sec" style="margin:0 0 8px;border:none;padding:0">Resultados R2 por región</p>
         <div style="overflow-x:auto"><table style="width:100%;font-size:11px">
-          <tr><th style="text-align:left">Región</th><th>Contado</th><th>FP%</th><th>Votos K</th><th>JP%</th><th>Votos S</th><th>Pend. actas</th><th>Pend. votos</th><th>JEE</th><th>Líder</th></tr>
+          <tr><th style="text-align:left">Región</th><th>Contado</th><th>Pend. actas</th><th>JEE</th><th>FP%</th><th>Votos K</th><th>JP%</th><th>Votos S</th><th>~Pend. votos</th><th>Líder</th></tr>
           <tbody id="r2-reg-tbody"></tbody>
         </table></div>
         <p class="note" style="margin-top:6px" id="r2-reg-note"></p>
@@ -2288,15 +2288,19 @@ const DATA = {
       const cCont = Math.round(c.tot * c.contp / 100);
       const cVpa = cCont > 0 ? (c.kv + c.sv) / cCont : 0;
       const pendVotos = c.pend > 0 && cVpa > 0 ? Math.round(c.pend * cVpa) : 0;
+      const jeeColor = c.jee > 0 ? '#C8A200' : 'var(--mu)';
+      const pendColor = c.pend > 0 ? 'var(--tx)' : 'var(--mu)';
       return `<tr>
         <td style="text-align:left">${pais}</td>
-        <td>${c.tot}</td>
-        <td>${c.contp.toFixed(1)}%</td>
-        <td style="color:#E8650A;font-weight:600">${c.kp.toFixed(1)}%</td>
-        <td style="color:#E8650A">${c.kv.toLocaleString('es-PE')}</td>
-        <td style="color:#4CAF50">${c.sp.toFixed(1)}%</td>
-        <td style="color:#4CAF50">${c.sv.toLocaleString('es-PE')}</td>
-        <td style="color:var(--mu)">${pendVotos > 0 ? '~' + pendVotos.toLocaleString('es-PE') : '—'}</td>
+        <td style="text-align:center">${c.tot}</td>
+        <td style="text-align:center">${c.contp.toFixed(1)}%</td>
+        <td style="text-align:center;color:${pendColor}">${c.pend || '—'}</td>
+        <td style="text-align:center;color:${jeeColor}">${c.jee || '—'}</td>
+        <td style="text-align:center;color:#E8650A;font-weight:600">${c.kp.toFixed(1)}%</td>
+        <td style="text-align:center;color:#E8650A">${c.kv.toLocaleString('es-PE')}</td>
+        <td style="text-align:center;color:#4CAF50">${c.sp.toFixed(1)}%</td>
+        <td style="text-align:center;color:#4CAF50">${c.sv.toLocaleString('es-PE')}</td>
+        <td style="text-align:center;color:var(--mu)">${pendVotos > 0 ? '~' + pendVotos.toLocaleString('es-PE') : '—'}</td>
       </tr>`;
     }).join('');
     document.getElementById('r2-ext-tbody').innerHTML = extRows;
@@ -2363,20 +2367,22 @@ const DATA = {
       const actasCont = Math.round(r.tot * r.contp / 100);
       const vpa = actasCont > 0 ? (r.kv + r.sv) / actasCont : 0;
       const pendVotos = r.pend > 0 && vpa > 0 ? Math.round(r.pend * vpa) : 0;
+      const jeeColor = r.jee > 0 ? '#C8A200' : 'var(--mu)';
+      const pendColor = r.pend > 0 ? 'var(--tx)' : 'var(--mu)';
       const lider = r.kp > r.sp
         ? '<span style="color:#E8650A;font-weight:700">FP</span>'
         : '<span style="color:#4CAF50;font-weight:700">JP</span>';
       return `<tr>
         <td style="text-align:left">${n}</td>
-        <td>${r.contp.toFixed(1)}%</td>
-        <td style="color:#E8650A;font-weight:600">${r.kp.toFixed(1)}%</td>
-        <td style="color:#E8650A">${r.kv.toLocaleString('es-PE')}</td>
-        <td style="color:#4CAF50">${r.sp.toFixed(1)}%</td>
-        <td style="color:#4CAF50">${r.sv.toLocaleString('es-PE')}</td>
-        <td style="color:var(--mu)">${r.pend || '—'}</td>
-        <td style="color:var(--mu)">${pendVotos > 0 ? '~' + pendVotos.toLocaleString('es-PE') : '—'}</td>
-        <td style="color:${r.jee > 0 ? '#C8A200' : 'var(--mu)'}">${r.jee || '—'}</td>
-        <td>${lider}</td>
+        <td style="text-align:center">${r.contp.toFixed(1)}%</td>
+        <td style="text-align:center;color:${pendColor}">${r.pend || '—'}</td>
+        <td style="text-align:center;color:${jeeColor}">${r.jee || '—'}</td>
+        <td style="text-align:center;color:#E8650A;font-weight:600">${r.kp.toFixed(1)}%</td>
+        <td style="text-align:center;color:#E8650A">${r.kv.toLocaleString('es-PE')}</td>
+        <td style="text-align:center;color:#4CAF50">${r.sp.toFixed(1)}%</td>
+        <td style="text-align:center;color:#4CAF50">${r.sv.toLocaleString('es-PE')}</td>
+        <td style="text-align:center;color:var(--mu)">${pendVotos > 0 ? '~' + pendVotos.toLocaleString('es-PE') : '—'}</td>
+        <td style="text-align:center">${lider}</td>
       </tr>`;
     }).join('');
     // ── Notes automáticos ──
