@@ -139,12 +139,12 @@
 
       <div class="r2-grid">
         <div class="r2-card">
-          <p class="sec" style="margin:0 0 8px;border:none;padding:0">🌎 Voto Extranjero por país (30.5% contado)</p>
+          <p class="sec" style="margin:0 0 8px;border:none;padding:0">🌎 Voto Extranjero por país (<span id="r2-ext-pct"></span> contado)</p>
           <table style="width:100%;font-size:11px">
             <tr><th style="text-align:left">País</th><th>Actas</th><th>%cont</th><th>K%</th><th>S%</th></tr>
             <tbody id="r2-ext-tbody"></tbody>
           </table>
-          <p class="note" style="margin-top:6px">EEUU consolida 77.8%K con la mitad contada. Italia (251) y Japón (81) — ambos pro-K histórico — aún en 0%.</p>
+          <p class="note" style="margin-top:6px" id="r2-ext-note"></p>
         </div>
         <div class="r2-card">
           <p class="sec" style="margin:0 0 8px;border:none;padding:0">⚖️ Estado de la definición</p>
@@ -162,7 +162,7 @@
           <tr><th style="text-align:left">Región</th><th>Contado</th><th>Fujimori</th><th>Sánchez</th><th>Pend.</th><th>JEE</th><th>Líder</th></tr>
           <tbody id="r2-reg-tbody"></tbody>
         </table></div>
-        <p class="note" style="margin-top:6px">Modelo pre-electoral proyectaba Sánchez 52.3% — el real va ~50/50: el voto extranjero y la transferencia OBRAS/PPT resultaron más pro-Fujimori que lo modelado. JEE: 1,547 actas observadas, 914 de Lima (zona 63.5%K) — su validación es el factor decisivo final.</p>
+        <p class="note" style="margin-top:6px" id="r2-reg-note"></p>
       </div>
     </div><!-- /vuelta-r2 -->
   </div>
@@ -2151,7 +2151,7 @@ const DATA = {
   // Actualizar fecha de última actualización
   if(DATA.last_update){
     const lu = DATA.last_update;
-    const r2txt = lu.conteo_r2_pct != null ? ` · 2da Vuelta al ${lu.conteo_r2_pct}%` : '';
+    const r2txt = ` · 2da Vuelta al ${DATA.r2_live.serie[DATA.r2_live.serie.length-1].pct}%`;
     document.getElementById('update-label').textContent = `Última actualización: ${lu.datetime} (${lu.timezone}) — 1ra Vuelta al ${lu.conteo_pct}%${r2txt}`;
   }
   // ── BOTONES Y TABS ────────────────────────────────────────────────────────────
@@ -2268,8 +2268,8 @@ const DATA = {
   }
   function renderR2(){
     // ── % contado en el header ──
-    if(DATA.last_update?.conteo_r2_pct != null)
-      document.getElementById('r2-pct').textContent = DATA.last_update.conteo_r2_pct + '%';
+   document.getElementById('r2-pct').textContent =
+      DATA.r2_live.serie[DATA.r2_live.serie.length-1].pct + '%';
 
     // ── Header nacional desde el último punto de la serie ──
     const last = DATA.r2_live.serie[DATA.r2_live.serie.length-1];
@@ -2316,18 +2316,27 @@ const DATA = {
       }
     });
     
-    // Extranjero con su propio vpa calculado
+    // Extranjero: proyección país por país (países sin desglose usan el agregado)
     const ext = R['Extranjero'];
     const extActasCont = Math.round(ext.tot * ext.contp / 100);
     const extVpa = extActasCont > 0 ? (ext.kv + ext.sv) / extActasCont : 0;
-    const extSplit = (ext.kp - ext.sp) / 100;
-    const extNet = ext.pend * extVpa * extSplit;
+    let extNet = 0, extPendCubierto = 0;
+    Object.values(extObj).forEach(c => {
+      if(!c.pend) return;
+      const cCont = Math.round(c.tot * c.contp / 100);
+      const cVpa = cCont > 0 ? (c.kv + c.sv) / cCont : extVpa;
+      extNet += c.pend * cVpa * (c.kp - c.sp) / 100;
+      extPendCubierto += c.pend;
+    });
+    // resto del pendiente no desglosado por país → split agregado
+    const extResto = Math.max(0, ext.pend - extPendCubierto);
+    extNet += extResto * extVpa * (ext.kp - ext.sp) / 100;
     
     const fmt = v => (v >= 0 ? '+' : '−') + Math.abs(Math.round(v)).toLocaleString('es-PE');
     
     document.getElementById('r2-def-tbody').innerHTML = [
       [`Doméstico pendiente (${domDetail.join(', ') || 'menores'})`, domActas, fmt(domNet)],
-      [`Extranjero pendiente (kp ${ext.kp.toFixed(1)}%, vpa ${Math.round(extVpa)} v/acta)`, ext.pend, fmt(extNet)],
+      [`Extranjero pendiente (proy. por país, vpa ~${Math.round(extVpa)} v/acta)`, ext.pend, fmt(extNet)],
       [`JEE — ${R['Lima'].jee} de Lima ${R['Lima'].kp.toFixed(1)}%K (si se validan)`, jeeActas.toLocaleString('es-PE'), fmt(jeeNet)]
     ].map(r => `<tr><td style="text-align:left">${r[0]}</td><td>${r[1]}</td><td style="font-weight:600">${r[2]}</td></tr>`).join('');
 
@@ -2348,6 +2357,25 @@ const DATA = {
       return `<tr><td style="text-align:left">${n}</td><td>${r.contp.toFixed(1)}%</td>`+
         `<td>${r.kp.toFixed(1)}%</td><td>${r.sp.toFixed(1)}%</td><td>${r.pend||'—'}</td><td>${r.jee||'—'}</td><td>${lider}</td></tr>`;
     }).join('');
+
+    // ── Notes automáticos ──
+    // % contado del extranjero en el header del card
+    document.getElementById('r2-ext-pct').textContent = ext.contp.toFixed(1) + '%';
+
+    // Note extranjero: mayor pendiente + dato más relevante contado
+    const extArr = Object.entries(extObj);
+    const topPend = [...extArr].filter(([,c])=>c.pend>0).sort((a,b)=>b[1].pend-a[1].pend).slice(0,3);
+    const topK = [...extArr].filter(([,c])=>c.contp>=50).sort((a,b)=>b[1].kp-a[1].kp)[0];
+    document.getElementById('r2-ext-note').innerHTML =
+      (topK ? `${topK[0]} consolida <strong style="color:#E8650A">${topK[1].kp.toFixed(1)}%K</strong> al ${topK[1].contp.toFixed(0)}% contado. ` : '') +
+      (topPend.length ? `Mayor pendiente: ${topPend.map(([n,c])=>`${n} (${c.pend})`).join(', ')}.` : 'Sin actas pendientes en el exterior.');
+
+    // Note regional: JEE total + Lima, con neto proyectado
+    const limaJeeNet = R['Lima'].jee * ((R['Lima'].kv+R['Lima'].sv)/Math.round(R['Lima'].tot*R['Lima'].contp/100)) * (R['Lima'].kp-R['Lima'].sp)/100;
+    document.getElementById('r2-reg-note').innerHTML =
+      `Modelo pre-electoral proyectaba Sánchez 52.3% — el real va ~50/50. ` +
+      `JEE: <strong>${jeeActas.toLocaleString('es-PE')}</strong> actas observadas, ` +
+      `<strong>${R['Lima'].jee}</strong> de Lima (zona ${R['Lima'].kp.toFixed(1)}%K, neto proy. ${fmt(limaJeeNet)} Keiko) — su validación es el factor decisivo final.`;
 
     // ── Chart de margen: calculado desde votos ──
     const margenes = DATA.r2_live.serie.map(p => (p.k - p.s) / 1000);
