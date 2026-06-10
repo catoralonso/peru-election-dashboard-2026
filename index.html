@@ -2206,56 +2206,56 @@ const DATA = {
       p.removeAttribute('id');
       let fill='#2a2a30', op=0.6, tip='';
       if (_r2MapYear === 2026) {
-      const d = lk2026[rname];
-      if (d) {
-        const kWins = d.kp > d.sp;
-        fill = kWins ? C_K : C_S;
-        const margin = Math.abs(d.kp - d.sp);
-        op = Math.min(1, Math.max(0.45, 0.45 + margin * 0.012));
-        if (kWins) winsA++; else winsB++;
-    
-        // --- Declarar aquí todas las variables que necesitas ---
-        const aName = kWins ? 'FP — Fuerza Popular' : 'JP — Sánchez';
-        const aColor = kWins ? C_K : C_S;
-        const aVotos = kWins ? d.kv : d.sv;
-        const aPct   = kWins ? d.kp : d.sp;
-        const bName = kWins ? 'JP — Sánchez' : 'FP — Fuerza Popular';
-        const bColor = kWins ? C_S : C_K;
-        const bVotos = kWins ? d.sv : d.kv;
-        const bPct   = kWins ? d.sp : d.kp;
-        const mgVotos = Math.abs(d.kv - d.sv);
-    
-        let tip2021 = '';
-        const r2021 = DATA.r2_live.r2_2021[rname] || DATA.r2_live.r2_2021[R2_NAME_MAP[rname]];
-        if (r2021) {
-          const [cas, kei] = r2021;
-          const tot21 = cas + kei;
-          const cas21Wins = cas > kei;
-          const [g21Name, g21Color, g21V, g21Pct, mg21] = cas21Wins
-            ? ['Perú Libre', '#D32F2F', cas, (cas / tot21) * 100, cas - kei]
-            : ['Fuerza Popular', '#E8650A', kei, (kei / tot21) * 100, kei - cas];
-          tip2021 = `<div style="margin-top:6px;padding-top:5px;border-top:1px solid #2a2a30;font-size:10px;color:var(--mu)">
-            2v 2021: <span style="color:${g21Color};font-weight:600">${g21Name}</span>
-            <span style="font-family:DM Mono,monospace;color:${g21Color}"> ${g21V.toLocaleString('es-PE')} (${g21Pct.toFixed(1)}%)</span>
-            <span style="color:var(--mu)"> · +${mg21.toLocaleString('es-PE')} votos</span>
-          </div>`;
-        }
-    
-        tip = `<div style="font-weight:600;margin-bottom:4px">${rname}</div>
-          <div style="color:var(--mu);font-size:10px;margin-bottom:6px">Contado: ${d.contp.toFixed(1)}%${d.pend ? ` · Pend: ${d.pend} actas` : ''}${d.jee ? ` · JEE: ${d.jee}` : ''}</div>
-          <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:3px">
-            <span style="color:${aColor};font-weight:600">${aName}</span>
-            <span style="color:${aColor};font-family:DM Mono,monospace">${aVotos.toLocaleString('es-PE')} (${aPct.toFixed(1)}%)</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:6px">
-            <span style="color:${bColor}">${bName}</span>
-            <span style="color:${bColor};font-family:DM Mono,monospace">${bVotos.toLocaleString('es-PE')} (${bPct.toFixed(1)}%)</span>
-          </div>
-          <div style="font-size:10px;padding-bottom:4px;border-bottom:1px solid #2a2a30">
-            Diferencia: <span style="color:${kWins ? C_K : C_S};font-weight:600">+${mgVotos.toLocaleString('es-PE')} votos</span>
-          </div>
-          ${tip2021}`;
+        const d = lk2026[rname];
+        if (d) {
+          const kWins = d.kp > d.sp;
+          fill = kWins ? C_K : C_S;
+          const margin = Math.abs(d.kp - d.sp);
+          op = Math.min(1, Math.max(0.45, 0.45 + margin * 0.012));
+          if (kWins) winsA++; else winsB++;
+      
+          const aName = kWins ? 'FP — Fuerza Popular' : 'JP — Sánchez';
+          const aColor = kWins ? C_K : C_S;
+          const aVotos = kWins ? d.kv : d.sv;
+          const aPct = kWins ? d.kp : d.sp;
+          const bName = kWins ? 'JP — Sánchez' : 'FP — Fuerza Popular';
+          const bColor = kWins ? C_S : C_K;
+          const bVotos = kWins ? d.sv : d.kv;
+          const bPct = kWins ? d.sp : d.kp;
+          const mgVotos = Math.abs(d.kv - d.sv);
+      
+          let tip2021 = '';
+          const r2021 = DATA.r2_live.r2_2021[rname] || DATA.r2_live.r2_2021[R2_NAME_MAP[rname]];
+          if (r2021) {
+            const [cas, kei] = r2021;
+            const tot21 = cas + kei;
+            const casWins = cas > kei;
+            const g21Name = casWins ? 'Perú Libre' : 'Fuerza Popular';
+            const g21Color = casWins ? '#D32F2F' : '#E8650A';
+            const g21V = casWins ? cas : kei;
+            const g21Pct = (g21V / tot21) * 100;
+            const mg21 = casWins ? cas - kei : kei - cas;
+            tip2021 = `<div style="margin-top:6px;padding-top:5px;border-top:1px solid #2a2a30;font-size:10px;color:var(--mu)">
+              2v 2021: <span style="color:${g21Color};font-weight:600">${g21Name}</span>
+              <span style="font-family:DM Mono,monospace;color:${g21Color}"> ${g21V.toLocaleString('es-PE')} (${g21Pct.toFixed(1)}%)</span>
+              <span style="color:var(--mu)"> · +${mg21.toLocaleString('es-PE')} votos</span>
+            </div>`;
           }
+      
+          tip = `<div style="font-weight:600;margin-bottom:4px">${rname}</div>
+            <div style="color:var(--mu);font-size:10px;margin-bottom:6px">Contado: ${d.contp.toFixed(1)}%${d.pend ? ` · Pend: ${d.pend} actas` : ''}${d.jee ? ` · JEE: ${d.jee}` : ''}</div>
+            <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:3px">
+              <span style="color:${aColor};font-weight:600">${aName}</span>
+              <span style="color:${aColor};font-family:DM Mono,monospace">${aVotos.toLocaleString('es-PE')} (${aPct.toFixed(1)}%)</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:6px">
+              <span style="color:${bColor}">${bName}</span>
+              <span style="color:${bColor};font-family:DM Mono,monospace">${bVotos.toLocaleString('es-PE')} (${bPct.toFixed(1)}%)</span>
+            </div>
+            <div style="font-size:10px;padding-bottom:4px;border-bottom:1px solid #2a2a30">
+              Diferencia: <span style="color:${kWins ? C_K : C_S};font-weight:600">+${mgVotos.toLocaleString('es-PE')} votos</span>
+            </div>
+            ${tip2021}`;
         }
       } else {
         const d = DATA.r2_live.r2_2021[rname];
