@@ -141,7 +141,7 @@
         <div class="r2-card">
           <p class="sec" style="margin:0 0 8px;border:none;padding:0">🌎 Voto Extranjero por país (<span id="r2-ext-pct"></span> contado)</p>
           <table style="width:100%;font-size:11px">
-            <tr><th style="text-align:left">País</th><th>Actas tot.</th><th>Cont.</th><th>Pend. actas</th><th>JEE</th><th>K%</th><th>Votos K</th><th>S%</th><th>Votos S</th><th>~Pend. votos</th></tr>
+            <tr><th style="text-align:left">País</th><th>Actas tot.</th><th>Cont.</th><th>Pend. actas</th><th>JEE</th><th>K%</th><th>Votos K</th><th>S%</th><th>Votos S</th><th>~Votos JEE</th></tr>
             <tbody id="r2-ext-tbody"></tbody>
           </table>
           <p class="note" style="margin-top:6px" id="r2-ext-note"></p>
@@ -159,7 +159,7 @@
       <div class="r2-card">
         <p class="sec" style="margin:0 0 8px;border:none;padding:0">Resultados R2 por región</p>
         <div style="overflow-x:auto"><table style="width:100%;font-size:11px">
-          <tr><th style="text-align:left">Región</th><th>Contado</th><th>Pend. actas</th><th>JEE</th><th>FP%</th><th>Votos K</th><th>JP%</th><th>Votos S</th><th>~Pend. votos</th><th>Líder</th></tr>
+          <tr><th style="text-align:left">Región</th><th>Contado</th><th>Pend. actas</th><th>JEE</th><th>FP%</th><th>Votos K</th><th>JP%</th><th>Votos S</th><th>~Votos JEE</th><th>Líder</th></tr>
           <tbody id="r2-reg-tbody"></tbody>
         </table></div>
         <p class="note" style="margin-top:6px" id="r2-reg-note"></p>
@@ -2298,7 +2298,26 @@ const DATA = {
       `<div style="display:flex;align-items:center;gap:8px;font-size:11px">
         <span style="width:12px;height:12px;border-radius:2px;background:${c};display:inline-block"></span>
         <span>${l}</span><span style="color:var(--mu);margin-left:auto">${n} reg.</span></div>`).join('')
-      + `<div style="font-size:9px;color:var(--mu);margin-top:6px">Intensidad = margen de victoria.</div>`
+      + `<div style="font-size:9px;color:var(--mu);margin-top:6px">Intensidad = margen de victoria.</div>`;
+
+    // Comparativo voto exterior 2026 vs 2021
+    const _ex = DATA.r2_live.regiones['Extranjero'];
+    const _ex21 = DATA.r2_live.r2_2021['Extranjero']; // [castillo, keiko]
+    const _k21 = _ex21[1] / (_ex21[0] + _ex21[1]) * 100;
+    const _dK = _ex.kp - _k21;
+    legend.innerHTML += `
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--bor)">
+        <div style="font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">🌎 Voto exterior · 2026 vs 2021</div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">
+          <span style="color:var(--mu)">2026 (${_ex.contp.toFixed(1)}%)</span>
+          <span><span style="color:#E8650A;font-weight:600">K ${_ex.kp.toFixed(1)}%</span> · <span style="color:#4CAF50">S ${_ex.sp.toFixed(1)}%</span></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:5px">
+          <span style="color:var(--mu)">2021 (final)</span>
+          <span><span style="color:#E8650A;font-weight:600">K ${_k21.toFixed(1)}%</span> · <span style="color:#D32F2F">C ${(100-_k21).toFixed(1)}%</span></span>
+        </div>
+        <div style="font-size:10px;color:var(--mu)">Keiko exterior: <span style="color:${_dK>=0?'#E8650A':'#4CAF50'};font-weight:600">${_dK>=0?'+':''}${_dK.toFixed(1)}pp</span> vs 2021</div>
+      </div>`;
   }
   function showVuelta(n){
     document.getElementById('vuelta-r1').style.display = n===1?'':'none';
@@ -2328,7 +2347,7 @@ const DATA = {
     const extRows = Object.entries(extObj).map(([pais, c]) => {
       const cCont = Math.round(c.tot * c.contp / 100);
       const cVpa = cCont > 0 ? (c.kv + c.sv) / cCont : 0;
-      const pendVotos = c.pend > 0 && cVpa > 0 ? Math.round(c.pend * cVpa) : 0;
+      const jeeVotos = c.jee > 0 && cVpa > 0 ? Math.round(c.jee * cVpa) : 0;
       const jeeColor = c.jee > 0 ? '#C8A200' : 'var(--mu)';
       const pendColor = c.pend > 0 ? 'var(--tx)' : 'var(--mu)';
       return `<tr>
@@ -2341,7 +2360,7 @@ const DATA = {
         <td style="text-align:center;color:#E8650A">${c.kv.toLocaleString('es-PE')}</td>
         <td style="text-align:center;color:#4CAF50">${c.sp.toFixed(1)}%</td>
         <td style="text-align:center;color:#4CAF50">${c.sv.toLocaleString('es-PE')}</td>
-        <td style="text-align:center;color:var(--mu)">${pendVotos > 0 ? '~' + pendVotos.toLocaleString('es-PE') : '—'}</td>
+        <td style="text-align:center;color:#C8A200">${jeeVotos > 0 ? '~' + jeeVotos.toLocaleString('es-PE') : '—'}</td>
       </tr>`;
     }).join('');
     document.getElementById('r2-ext-tbody').innerHTML = extRows;
@@ -2407,7 +2426,7 @@ const DATA = {
     document.getElementById('r2-reg-tbody').innerHTML = Object.entries(R).map(([n, r]) => {
       const actasCont = Math.round(r.tot * r.contp / 100);
       const vpa = actasCont > 0 ? (r.kv + r.sv) / actasCont : 0;
-      const pendVotos = r.pend > 0 && vpa > 0 ? Math.round(r.pend * vpa) : 0;
+      const jeeVotos = r.jee > 0 && vpa > 0 ? Math.round(r.jee * vpa) : 0;
       const jeeColor = r.jee > 0 ? '#C8A200' : 'var(--mu)';
       const pendColor = r.pend > 0 ? 'var(--tx)' : 'var(--mu)';
       const lider = r.kp > r.sp
@@ -2422,7 +2441,7 @@ const DATA = {
         <td style="text-align:center;color:#E8650A">${r.kv.toLocaleString('es-PE')}</td>
         <td style="text-align:center;color:#4CAF50">${r.sp.toFixed(1)}%</td>
         <td style="text-align:center;color:#4CAF50">${r.sv.toLocaleString('es-PE')}</td>
-        <td style="text-align:center;color:var(--mu)">${pendVotos > 0 ? '~' + pendVotos.toLocaleString('es-PE') : '—'}</td>
+        <td style="text-align:center;color:#C8A200">${jeeVotos > 0 ? '~' + jeeVotos.toLocaleString('es-PE') : '—'}</td>
         <td style="text-align:center">${lider}</td>
       </tr>`;
     }).join('');
